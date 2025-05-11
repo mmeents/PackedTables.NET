@@ -29,6 +29,10 @@ jobs:
     - name: Clean solution
       run: dotnet clean ./src/PackedTables/PackedTables.sln      
 
+    # Ensure artifacts directory exists
+    - name: Create artifacts directory
+      run: mkdir -p ./artifacts      
+
     # Build the project
     - name: Build
       run: dotnet build ./src/PackedTables/PackedTables.sln --configuration Release --no-restore
@@ -37,10 +41,9 @@ jobs:
     - name: Run tests
       run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
       
-    # Ensure artifacts directory exists
-    - name: Create artifacts directory
-      run: mkdir -p ./artifacts
-
+    - name: Verify artifacts directory
+      run: ls -la ./artifacts
+      
     # Pack the project
     - name: Pack
       run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ./artifacts

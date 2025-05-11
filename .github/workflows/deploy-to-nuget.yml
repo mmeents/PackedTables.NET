@@ -44,6 +44,9 @@ jobs:
     # Pack the project
     - name: Pack
       run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ./artifacts
+      
+    - name: Verify artifacts directory
+      run: ls -la ./artifacts
 
     # Upload artifacts for the deploy job
     - name: Upload artifacts
@@ -73,6 +76,9 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
+        
+    - name: Verify artifacts directory
+      run: ls -la ./artifacts
 
     # Push the package to NuGet
     - name: Publish to NuGet

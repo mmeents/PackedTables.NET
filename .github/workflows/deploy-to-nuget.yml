@@ -24,30 +24,34 @@ jobs:
     # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore ./src/PackedTables/PackedTables.sln
-      
+
     # Clean solution
     - name: Clean solution
-      run: dotnet clean ./src/PackedTables/PackedTables.sln      
+      run: dotnet clean ./src/PackedTables/PackedTables.sln
 
     # Ensure artifacts directory exists
     - name: Create artifacts directory
-      run: mkdir -p ./artifacts      
+      run: mkdir -p ./artifacts
 
     # Build the project
     - name: Build
       run: dotnet build ./src/PackedTables/PackedTables.sln --configuration Release --no-restore
-    
-    # Run tests    
+
+    # Run tests
     - name: Run tests
       run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
-      
-    - name: Verify artifacts directory
-      run: ls -la ./artifacts
-      
+
     # Pack the project
     - name: Pack
       run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ./artifacts
-  
+
+    # Upload artifacts for the deploy job
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: ./artifacts
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -63,6 +67,12 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 9.0 # Use .NET 9
+
+    # Download artifacts
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
 
     # Push the package to NuGet
     - name: Publish to NuGet

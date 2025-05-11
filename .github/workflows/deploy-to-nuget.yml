@@ -33,9 +33,9 @@ jobs:
     - name: Build
       run: dotnet build ./src/PackedTables/PackedTables.sln --configuration Release --no-restore
     
-      # Run tests
+    # Run tests    
     - name: Run tests
-      run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --no-build
+      run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
 
     # Pack the project
     - name: Pack

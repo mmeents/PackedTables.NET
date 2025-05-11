@@ -13,8 +13,8 @@ namespace PackedTables.Tests.Models
         private PackedTables _packedTables;
         private TableModel _tableModel;
 
-        [TestInitialize]
-        public void Setup()
+        
+        public TableModelTests()
         {
             // Initialize mock PackedTables
             _packedTables = new PackedTables();

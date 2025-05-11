@@ -14,7 +14,7 @@ namespace PackedTables.Tests.Extensions
         private PackedTables _packedTables;
 
   //      [TestInitialize]
-        public void Setup()
+        public PackedTablesExtTests()
         {
             // Initialize PackedTables with a mock DataSetPackage
             _packedTables = new PackedTables();

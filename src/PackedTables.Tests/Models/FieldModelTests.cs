@@ -43,7 +43,7 @@ namespace PackedTables.Tests.Models
         public void FieldModel_Value_Set_ShouldUpdateValueString()
         {
             // Arrange
-            var field = new FieldModel();
+            var field = new FieldModel(){ ValueType = ColumnType.Int32};
 
             // Act
             field.Value = 123;
@@ -56,7 +56,7 @@ namespace PackedTables.Tests.Models
         public void FieldModel_Value_Set_ShouldUpdateValueType()
         {
             // Arrange
-            var field = new FieldModel();
+            var field = new FieldModel(){ ValueType = ColumnType.Int32 }; 
 
             // Act
             field.Value = 123;

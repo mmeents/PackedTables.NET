@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PackedTables.Dictionaries {
   public class Tables : ConcurrentDictionary<Guid, TableModel> {
-    public PackedTables Owner { get; set;}
+    public PackedTables? Owner { get; set;}
     private readonly object _lock = new();
 
     public Tables(PackedTables owner) : base() {
@@ -46,7 +46,7 @@ namespace PackedTables.Dictionaries {
         }
         base[table.Id] = table;
         table.Owner = this;
-        Owner.PopulateTable(table);
+        Owner!.PopulateTable(table);
         return table;
       }
     }

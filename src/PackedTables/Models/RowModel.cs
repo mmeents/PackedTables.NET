@@ -25,14 +25,14 @@ namespace PackedTables.Models {
     public TableModel? Owner { get; set; } = null;
 
     [IgnoreMember]
-    public Fields RowFields { get; set; }
+    public Fields? RowFields { get; set; }
 
     [IgnoreMember]
     public FieldModel? this[string columnName] {
       get {
         if (Owner == null || columnName == null || columnName.Length == 0) return null;
         var columnId = Owner!.GetColumnID(columnName);
-        FieldModel? field = RowFields.Values.FirstOrDefault(x => x.ColumnId == columnId);
+        FieldModel? field = RowFields?.Values.FirstOrDefault(x => x.ColumnId == columnId);
         return field;
       }
       set {
@@ -41,11 +41,11 @@ namespace PackedTables.Models {
         if (columnId == Guid.Empty) throw new Exception("Column not found");
         if (value != null) {          
           if (value.ColumnId != columnId) throw new Exception("ColumnId mismatch");
-          RowFields.Add(value);
+          RowFields?.Add(value);
         } else {
-          var field = RowFields.Values.FirstOrDefault(x => x.ColumnId == columnId);
+          var field = RowFields?.Values.FirstOrDefault(x => x.ColumnId == columnId);
           if (field != null) {
-            RowFields.Remove(field);
+            RowFields!.Remove(field);
           }
         }
       }

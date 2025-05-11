@@ -12,9 +12,8 @@ namespace PackedTables.Tests
     public class PackedTablesTests
     {
         private PackedTables _packedTables;
-
-        [TestInitialize]
-        public void Setup()
+        
+        public PackedTablesTests()
         {
             // Initialize PackedTables with a mock DataSetPackage
             _packedTables = new PackedTables();

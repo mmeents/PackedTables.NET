@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PackedTables.Dictionaries {
   public class Fields : ConcurrentDictionary<Guid, FieldModel> {
-    private readonly Columns _columns;
+    private readonly Columns _columns = new();
     private readonly object _lock = new();
     public Fields(Columns columns) : base() {
       _columns = columns;
@@ -42,7 +42,8 @@ namespace PackedTables.Dictionaries {
         if (field.Id == Guid.Empty) {
           field.Id = GetNextId();
         }
-        field.ValueType = (ColumnType)_columns[field.ColumnId].ColumnType;
+        var fieldColumnId = field.ColumnId;
+        field.ValueType = (ColumnType)_columns[fieldColumnId]!.ColumnType;
         base[field.Id] = field;
         return field;
       }

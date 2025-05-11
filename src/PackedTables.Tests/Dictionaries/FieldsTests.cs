@@ -10,24 +10,32 @@ namespace PackedTables.Tests.Dictionaries
     public class FieldsTests
     {
         private Columns _columns;
+        private ColumnModel _column1;
+        private ColumnModel _column2;
 
-        [TestInitialize]
-        public void Setup()
+        public FieldsTests()
         {
+            Guid tableId = Guid.NewGuid();
             // Initialize a mock Columns object with some test data
             _columns = new Columns();
-            _columns.Add(new ColumnModel
+            
+            _column1 = new ColumnModel
             {
                 Id = Guid.NewGuid(),
+                TableId = tableId,
                 ColumnName = "TestColumn1",
                 ColumnType = (short)ColumnType.String
-            });
-            _columns.Add(new ColumnModel
+            };
+
+            _column2 = new ColumnModel
             {
                 Id = Guid.NewGuid(),
+                TableId = tableId,
                 ColumnName = "TestColumn2",
                 ColumnType = (short)ColumnType.Int32
-            });
+            };
+            _columns.Add(_column1);
+            _columns.Add(_column2);
         }
 
         [TestMethod]
@@ -38,8 +46,9 @@ namespace PackedTables.Tests.Dictionaries
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.ByName("TestColumn1").Id,
-                Value = "TestValue"
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String,
+                ValueString = "TestValue"
             };
 
             // Act
@@ -59,8 +68,9 @@ namespace PackedTables.Tests.Dictionaries
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.First().Id,
-                Value = "TestValue"
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String,
+                ValueString = "TestValue"
             };
             var addedField = fields.Add(field);
 
@@ -79,8 +89,9 @@ namespace PackedTables.Tests.Dictionaries
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.First().Id,
-                Value = "TestValue"
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String,
+                ValueString = "TestValue"
             };
             var addedField = fields.Add(field);
 
@@ -99,14 +110,16 @@ namespace PackedTables.Tests.Dictionaries
             var field1 = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.First().Id,
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String,
                 Value = "Value1"
             };
             var field2 = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.Last().Id,
-                Value = "Value2"
+                ColumnId = _column2.Id,
+                ValueType = ColumnType.Int32,
+                Value = 122
             };
             fields.Add(field1);
             fields.Add(field2);
@@ -142,8 +155,8 @@ namespace PackedTables.Tests.Dictionaries
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.First().Id,
-                ValueString = "TestValue"
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String, ValueString = "TestValue"
             };
             var addedField = fields.Add(field);
 
@@ -162,8 +175,8 @@ namespace PackedTables.Tests.Dictionaries
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
-                ColumnId = _columns.AsList.First().Id,
-                ValueString = "TestValue"
+                ColumnId = _column1.Id,
+                ValueType = ColumnType.String, ValueString = "TestValue"
             };
 
             // Act

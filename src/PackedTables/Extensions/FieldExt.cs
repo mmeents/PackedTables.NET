@@ -28,25 +28,25 @@ namespace PackedTables.Extensions {
 
       if (value == null) {
         field.ValueString = "";
-      } else if (value is string) {
-        field.ValueString = (string)value;
-      } else if (value is int) {
-        field.ValueString = ((int)value).ToString();
-      } else if (value is long) {
-        field.ValueString = ((long)value).ToString();
-      } else if (value is DateTime) {
-        field.ValueString = ((DateTime)value).AsStrDateTime24H();
-      } else if (value is bool) {
-        field.ValueString = ((bool)value).ToString();
-      } else if (value is Decimal) {
-        field.ValueString = ((Decimal)value).ToString();
-      } else if (value is byte[]) {
-        field.ValueString = ((byte[])value).FromUTF8BytesAsString();
+      } else if (value is string valString) {
+        field.ValueString = valString;
+      } else if (value is int valInt) {
+        field.ValueString = valInt.ToString();
+      } else if (value is long valLong) {
+        field.ValueString = valLong.ToString();
+      } else if (value is DateTime valDateTime) {
+        field.ValueString = valDateTime.AsStrDateTime24H();
+      } else if (value is bool valBool) {
+        field.ValueString = valBool.ToString();
+      } else if (value is Decimal valDecimal) {
+        field.ValueString = valDecimal.ToString();
+      } else if (value is byte[] valBytes) {
+        field.ValueString = valBytes.FromUTF8BytesAsString();
       }
       return field.ValueString;
     }
 
-    public static ColumnType GetColumnType(this FieldModel field, Object value) {
+    public static ColumnType GetColumnType( Object value) {
       if (value == null) {
         return ColumnType.Null;
       } else if (value is string) {
@@ -136,7 +136,7 @@ namespace PackedTables.Extensions {
       return Convert.ToDecimal(value);
     }
     public static string AsString(this Object value) {
-      return value.ToString();
+      return value?.ToString() ?? "";
     }
 
 
@@ -156,7 +156,7 @@ namespace PackedTables.Extensions {
     public static string AsStrDateTime24H(this DateTime x) {
       return String.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.FFF}", x);
     }
-    /// <summary> DateTime to string time h:mm:ss tt</summary>
+    /// <summary> DateTime to string valDateTime h:mm:ss tt</summary>
     /// <returns> string </returns>
     public static string AsStrTime(this DateTime x) {
       return String.Format(CultureInfo.InvariantCulture, "{0:h:mm:ss tt}", x);

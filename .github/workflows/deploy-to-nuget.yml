@@ -24,6 +24,10 @@ jobs:
     # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore ./src/PackedTables/PackedTables.sln
+      
+    # Clean solution
+    - name: Clean solution
+      run: dotnet clean ./src/PackedTables/PackedTables.sln      
 
     # Build the project
     - name: Build

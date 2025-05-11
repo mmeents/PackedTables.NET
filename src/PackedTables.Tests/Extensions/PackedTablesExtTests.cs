@@ -7,7 +7,7 @@ using PackedTables.Models;
 
 namespace PackedTables.Tests.Extensions
 {
-  // disabling tests due to concerns during CICD and getting tempt file at that time.
+  // disabling tests due to concerns during CICD and getting temp file at that time.
   //  [TestClass]
     public class PackedTablesExtTests
     {

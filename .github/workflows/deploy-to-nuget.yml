@@ -36,6 +36,10 @@ jobs:
     # Run tests    
     - name: Run tests
       run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
+      
+    # Ensure artifacts directory exists
+    - name: Create artifacts directory
+      run: mkdir -p ./artifacts
 
     # Pack the project
     - name: Pack

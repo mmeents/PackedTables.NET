@@ -43,8 +43,8 @@ jobs:
 
     # Pack the project
     - name: Pack
-      run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ../../artifacts
-
+      run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ./artifacts
+  
   deploy:
     needs: build
     runs-on: ubuntu-latest

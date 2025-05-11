@@ -43,7 +43,11 @@ namespace PackedTables.Dictionaries {
           field.Id = GetNextId();
         }
         var fieldColumnId = field.ColumnId;
-        field.ValueType = (ColumnType)_columns[fieldColumnId]!.ColumnType;
+        if (_columns.TryGetValue(fieldColumnId, out var column)) {
+            field.ValueType = (ColumnType)column.ColumnType;
+        } else {
+            throw new KeyNotFoundException($"The column with ID {fieldColumnId} was not found in _columns.");
+        }
         base[field.Id] = field;
         return field;
       }

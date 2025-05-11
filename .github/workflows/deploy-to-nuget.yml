@@ -23,19 +23,19 @@ jobs:
 
     # Restore dependencies
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./src/PackedTables/PackedTables.sln
 
     # Build the project
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ./src/PackedTables/PackedTables.sln --configuration Release --no-restore
 
     # Run tests
     - name: Run tests
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./src/PackedTables/PackedTables.sln --no-build --verbosity normal
 
     # Pack the project
     - name: Pack
-      run: dotnet pack --configuration Release --no-build --output ../../artifacts
+      run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ../../artifacts
 
   deploy:
     needs: build

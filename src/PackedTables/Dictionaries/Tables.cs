@@ -46,7 +46,10 @@ namespace PackedTables.Dictionaries {
         }
         base[table.Id] = table;
         table.Owner = this;
-        Owner!.PopulateTable(table);
+        if (Owner == null) {
+          throw new InvalidOperationException("Owner cannot be null when adding a table.");
+        }
+        Owner.PopulateTable(table);
         return table;
       }
     }

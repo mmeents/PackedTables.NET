@@ -156,7 +156,7 @@ namespace PackedTables.Extensions {
     public static string AsStrDateTime24H(this DateTime x) {
       return String.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.FFF}", x);
     }
-    /// <summary> DateTime to string valDateTime h:mm:ss tt</summary>
+    /// <summary> DateTime to string DateTime h:mm:ss tt</summary>
     /// <returns> string </returns>
     public static string AsStrTime(this DateTime x) {
       return String.Format(CultureInfo.InvariantCulture, "{0:h:mm:ss tt}", x);

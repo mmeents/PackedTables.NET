@@ -39,8 +39,8 @@ namespace PackedTables.Models {
     }
 
     public IEnumerable<FieldModel> GetFieldsOfRow(Guid rowId) {
-      var allFields = Owner.Owner.Fields;
-      return allFields.Select( kvp => kvp.Value).Where(x => x.RowId == rowId);
+      var allFields = Owner?.Owner!.Fields;
+      return allFields!.Select( kvp => kvp.Value).Where(x => x.RowId == rowId);
     }
 
   }

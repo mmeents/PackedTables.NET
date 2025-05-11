@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PackedTables.Dictionaries {
   public class Tables : ConcurrentDictionary<Guid, TableModel> {
-    public PackedTables Owner { get; set;}
+    public PackedTables? Owner { get; set;}
     private readonly object _lock = new();
 
     public Tables(PackedTables owner) : base() {
@@ -46,6 +46,9 @@ namespace PackedTables.Dictionaries {
         }
         base[table.Id] = table;
         table.Owner = this;
+        if (Owner == null) {
+          throw new InvalidOperationException("Owner cannot be null when adding a table.");
+        }
         Owner.PopulateTable(table);
         return table;
       }

@@ -15,9 +15,8 @@ namespace PackedTables.Tests.Dictionaries
         private TableModel _tableModel;
         private Columns _columns;
         private Fields _fields;
-
-        [TestInitialize]
-        public void Setup()
+       
+        public RowsTests()
         {
             _columns = new Columns();
             var column1 = new ColumnModel {

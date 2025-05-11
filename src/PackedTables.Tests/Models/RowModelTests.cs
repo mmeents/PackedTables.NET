@@ -13,8 +13,8 @@ namespace PackedTables.Tests.Models
         private Columns _columns;
         private Fields _fields;
 
-        [TestInitialize]
-        public void Setup()
+        
+        public RowModelTests()
         {
             // Initialize mock Columns and Fields
             _columns = new Columns();
@@ -41,9 +41,9 @@ namespace PackedTables.Tests.Models
                 Id = Guid.NewGuid(),
                 Name = "TestTable",
                 Columns = _columns,
-                Fields = _fields,
-                Rows = new Rows(_tableModel)
+                Fields = _fields,                
             };
+            _tableModel.Rows = new Rows(_tableModel);
         }
 
         [TestMethod]
@@ -68,6 +68,7 @@ namespace PackedTables.Tests.Models
             {
                 RowId = Guid.NewGuid(),
                 ColumnId = _tableModel.GetColumnID("Column1"),
+                ValueType = ColumnType.String,
                 Value = "TestValue"
             };
             _fields.Add(field);
@@ -111,6 +112,7 @@ namespace PackedTables.Tests.Models
             {
                 RowId = Guid.NewGuid(),
                 ColumnId = _tableModel.GetColumnID("Column1"),
+                ValueType = ColumnType.String,
                 ValueString = "TestValue"
             };
 
@@ -135,6 +137,7 @@ namespace PackedTables.Tests.Models
             {
                 RowId = Guid.NewGuid(),
                 ColumnId = Guid.NewGuid(), // Invalid ColumnId
+                ValueType = ColumnType.String,
                 ValueString = "TestValue"
             };
 
@@ -155,6 +158,7 @@ namespace PackedTables.Tests.Models
             {
                 RowId = Guid.NewGuid(),
                 ColumnId = Guid.NewGuid(), // Mismatched ColumnId
+                ValueType = ColumnType.String,
                 ValueString = "TestValue"
             };
 

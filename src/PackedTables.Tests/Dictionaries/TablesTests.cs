@@ -13,8 +13,7 @@ namespace PackedTables.Tests.Dictionaries
         private PackedTables _packedTables;
         private Tables _tables;
 
-        [TestInitialize]
-        public void Setup()
+        public TablesTests()
         {
             // Initialize mock PackedTables
             _packedTables = new PackedTables();

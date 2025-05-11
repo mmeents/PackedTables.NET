@@ -29,8 +29,12 @@ namespace PackedTables.Models {
         return this.AsObject();
       }
       set {
-        this.ValueType = this.GetColumnType(value);
-        this.ValueString = this.GetColumnValueToString(value);
+        if (this.ValueType == FieldExt.GetColumnType(value)) {
+          this.ValueString = this.GetColumnValueToString(value);
+        } else {
+          throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
+        }
+
       }
     }
 

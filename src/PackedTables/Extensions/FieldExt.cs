@@ -18,7 +18,7 @@ namespace PackedTables.Extensions {
         case ColumnType.DateTime: ret = field.ValueString.AsDateTime(); break;
         case ColumnType.Boolean: ret = field.ValueString.AsBoolean(); break;
         case ColumnType.Decimal: ret = field.ValueString.AsDecimal(); break;
-        case ColumnType.Bytes: ret = field.ValueString.AsBytes(); break;
+        case ColumnType.Bytes: ret = field.ValueString.FromUTF8AsBytes(); break;
         case ColumnType.Int64: ret = field.ValueString.AsInt64(); break;
       }
       return ret;
@@ -41,7 +41,7 @@ namespace PackedTables.Extensions {
       } else if (value is Decimal) {
         field.ValueString = ((Decimal)value).ToString();
       } else if (value is byte[]) {
-        field.ValueString = ((byte[])value).AsString();
+        field.ValueString = ((byte[])value).FromUTF8BytesAsString();
       }
       return field.ValueString;
     }
@@ -76,7 +76,7 @@ namespace PackedTables.Extensions {
       return field.ValueString.AsInt64();
     }
     public static byte[] AsBytes(this FieldModel field) {
-      return field.ValueString.AsBytes();
+      return field.ValueString.FromUTF8AsBytes();
     }
     public static bool AsBoolean(this FieldModel field) {
       return field.ValueString.AsBoolean();
@@ -94,7 +94,7 @@ namespace PackedTables.Extensions {
     public static long AsInt64(this string value) {
       return long.Parse(value);
     }
-    public static byte[] AsByte(this string value) {
+    public static byte[] AsBase64Bytes(this string value) {
       return Convert.FromBase64String(value);
     }
     public static bool AsBoolean(this string value) {
@@ -106,10 +106,10 @@ namespace PackedTables.Extensions {
     public static Decimal AsDecimal(this string value) {
       return Decimal.Parse(value);
     }
-    public static byte[] AsBytes(this string text) {
+    public static byte[] FromUTF8AsBytes(this string text) {
       return Encoding.UTF8.GetBytes(text);
     }
-    public static string AsString(this byte[] bytes) {
+    public static string FromUTF8BytesAsString(this byte[] bytes) {
       return Encoding.UTF8.GetString(bytes);
     }
     public static string AsString(this int value) {

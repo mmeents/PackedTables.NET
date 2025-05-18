@@ -19,15 +19,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 9.0 # Use .NET 9
+        dotnet-version: 8.0 # Use .NET 8
 
     # Restore dependencies
     - name: Restore dependencies
-      run: dotnet restore ./src/PackedTables/PackedTables.sln
+      run: dotnet restore ./PackedTables.sln
 
     # Clean solution
     - name: Clean solution
-      run: dotnet clean ./src/PackedTables/PackedTables.sln
+      run: dotnet clean ./PackedTables.sln
 
     # Ensure artifacts directory exists
     - name: Create artifacts directory
@@ -35,7 +35,7 @@ jobs:
 
     # Build the project
     - name: Build
-      run: dotnet build ./src/PackedTables/PackedTables.sln --configuration Release --no-restore
+      run: dotnet build ./PackedTables.sln --configuration Release --no-restore
 
     # Run tests
     - name: Run tests
@@ -43,7 +43,7 @@ jobs:
 
     # Pack the project
     - name: Pack
-      run: dotnet pack ./src/PackedTables/PackedTables.sln --configuration Release --no-build --output ./artifacts
+      run: dotnet pack ./PackedTables.sln --configuration Release --no-build --output ./artifacts
             
     - name: Verify artifacts directory
       run: ls -la ./artifacts

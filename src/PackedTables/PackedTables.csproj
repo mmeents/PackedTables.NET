@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>flame.ico</ApplicationIcon>    
@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://github.com/mmeents/PackedTables.NET</PackageProjectUrl>    
     <PackageTags>MessagePack Tables</PackageTags>    
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Title>PackedTables.NET</Title>
     <Authors>$(AssemblyName)</Authors>
     <Copyright> Copyright © 2025 MattMeents</Copyright>

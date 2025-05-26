@@ -52,8 +52,8 @@ namespace PackedTables
       var listRows = Package.Rows.Where(x => x.TableId == table.Id);
       List<FieldModel> fields = new List<FieldModel>();      
       foreach (var item in listRows) {
-        if (table.Rows.ContainsKey(item.Id)) {
-          table.Rows[item.Id].RowFields = new Fields(Package.Fields.Where(x => x.RowId == item.Id), table.Rows[item.Id], table.Columns);
+        if (table.Rows.TryGetValue(item.Id, out var existingRow)) {
+          existingRow.RowFields = new Fields(Package.Fields.Where(x => x.RowId == item.Id), existingRow, table.Columns);
         } else {
           table.Rows[item.Id] = item;
         }                

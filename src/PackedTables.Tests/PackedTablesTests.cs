@@ -127,7 +127,8 @@ namespace PackedTables.Tests
         public void PackedTables_PopulateTable_ShouldPopulateCorrectly()
         {
             // Arrange
-            var table = _packedTables.Tables[_packedTables.Tables.Keys.First()];
+            var tableId = _packedTables.Package.Tables.First().Id;
+            var table = _packedTables.Tables[tableId];
 
             // Act
             var populatedTable = _packedTables.PopulateTable(table);

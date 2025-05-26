@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PackedTables.Extensions;
+using PackedTables.Dictionaries;
 
 namespace PackedTables.Models {
 
   [MessagePackObject]
   public class FieldModel {
+    [IgnoreMember]
+    public Fields? OwnerFields { get; set; } = null!;
 
     [Key(0)]
     public Guid Id { get; set; } = Guid.Empty;
@@ -31,6 +34,9 @@ namespace PackedTables.Models {
       set {
         if (this.ValueType == FieldExt.GetColumnType(value)) {
           this.ValueString = this.GetColumnValueToString(value);
+          if (OwnerFields != null) {
+            OwnerFields.NotifyValueChanged(this.RowId);
+          }
         } else {
           throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
         }

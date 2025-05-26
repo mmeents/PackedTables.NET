@@ -15,7 +15,7 @@ namespace PackedTables.Models {
     DateTime = 6,
     Guid = 7,
     String = 8,       
-    Bytes = 9,    
+    Bytes = 9    
   }
 
 }

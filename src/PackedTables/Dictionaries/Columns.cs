@@ -8,6 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PackedTables.Dictionaries {
+
+  /// <summary>
+  /// Represents a collection of columns in a table.
+  /// </summary>
   public class Columns : ConcurrentDictionary<Guid, ColumnModel> {
     private readonly object _lock = new object();
     private readonly ConcurrentDictionary<string, ColumnModel> byName;
@@ -123,6 +127,32 @@ namespace PackedTables.Dictionaries {
         foreach (var x in value) {
           Add(x);
         }
+      }
+    }
+
+    public void Synchronize(Columns columns) {
+      lock (_lock) {   
+        HashSet<Guid> ids = new HashSet<Guid>();
+        foreach (var x in columns.Values) {       // Iterate through the columns in the provided collection
+          ids.Add(x.TableId);                     // Collect unique TableIds from the columns
+          if (!Contains(x.Id)) {             // If the column does not exist in the current dictionary, add it
+            Add(x);
+          } else {
+            this[x.Id] = x;                  // If it exists, update the existing column with the new values  
+          }
+        }
+        foreach (var x in base.Values) {                              // Iterate through the existing columns in the dictionary
+          if (!columns.Contains(x.Id) && ids.Contains(x.TableId)) {   // If the column is not in the provided collection and its TableId is in the collected ids
+            Remove(x.Id);                 // Remove the column from the dictionary
+          }
+        }
+      }
+    }
+
+    public void ClearAll() {
+      lock (_lock) {
+        base.Clear();
+        byName.Clear();
       }
     }
   }

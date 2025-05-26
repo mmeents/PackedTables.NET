@@ -50,6 +50,48 @@ namespace PackedTables.Extensions {
       }
       return packedTables;
     }
+    public static TableModel? GetTableByName(this PackedTables packedTables, string tableName) {
+      var tables = packedTables.Tables;
+      var table = tables.FirstOrDefault(t => t.Value.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+      if (table.Key != Guid.Empty) {
+        return table.Value;
+      } else {
+        return null;
+      }
+    }
+
+    public static PackedTables SaveTableToPackage(this PackedTables packedTables, TableModel tableModel) {
+      var fields = packedTables.Fields;
+      var columns = packedTables.Columns;      
+      var tables = packedTables.Package.Tables.ToList();
+      var rows = packedTables.Rows;
+
+      var tblModelId = tableModel.Id;
+      var tbl = tables.FirstOrDefault(x => x.Id == tblModelId);
+      if (tbl == null) {
+        tables.Add(tableModel);
+      } else {      
+        tbl.Name = tableModel.Name; // Update the name of the table if it exists.        
+      }
+      packedTables.Package.Tables = tables; // Update the package with the new list of tables.
+      columns.Synchronize(tableModel.Columns); // Synchronize the columns with the table model columns.      
+      foreach (var row in tableModel.Rows.AsList) {
+        tableModel.Fields.Synchronize(row.RowFields);         
+      }
+      fields._columns = columns;
+      fields.Synchronize(tableModel.Fields); // Synchronize the fields with the table model fields.
+      rows._ownerTable = tableModel; // Set the owner of the rows to the table model.
+      rows._packedTables = packedTables; // Set the packed tables of the rows to the packed tables.
+      rows.Synchronize(tableModel.Rows); // Synchronize the rows with the table model rows.
+      
+
+      packedTables.Package.Rows = tableModel.Rows.AsList.ToList();
+
+      packedTables.Fields = fields;
+      packedTables.Columns = columns;
+      packedTables.Rows = rows;
+      return packedTables;
+    }
 
   }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PackedTables.Dictionaries;
+using PackedTables.Extensions;
 using PackedTables.Models;
 
 namespace PackedTables.Tests.Models
@@ -18,58 +19,18 @@ namespace PackedTables.Tests.Models
         {
             // Initialize mock PackedTables
             _packedTables = new PackedTables();
-            var tableID = Guid.NewGuid();
+            var TableTest = _packedTables.AddTable("TestTable");
+            TableTest.AddColumn("Column1", (short)ColumnType.String);
+            TableTest.AddColumn("Column2", (short)ColumnType.Int32);
+            var RowTest = TableTest.AddRow();
+            RowTest["Column1"].Value = "TestValue1";
+            RowTest["Column2"].Value = 123;
 
-            // Add mock columns to the DataSetPackage
-            var column1 = new ColumnModel
-            {
-                Id = Guid.NewGuid(),
-                TableId = tableID,
-                ColumnName = "Column1",
-                ColumnType = (short)ColumnType.String
-            };
-            var column2 = new ColumnModel
-            {
-                Id = Guid.NewGuid(),
-                TableId = tableID,
-                ColumnName = "Column2",
-                ColumnType = (short)ColumnType.Int32
-            };
-            _packedTables.Package.Columns = new List<ColumnModel> { column1, column2 };
-
-            // Add mock fields to the DataSetPackage
-            var field1 = new FieldModel
-            {
-                Id = Guid.NewGuid(),
-                RowId = Guid.NewGuid(),
-                ColumnId = column1.Id,
-                ValueString = "TestValue1"
-            };
-            var field2 = new FieldModel
-            {
-                Id = Guid.NewGuid(),
-                RowId = field1.RowId,
-                ColumnId = column2.Id,
-                ValueString = "123"
-            };
-            _packedTables.Package.Fields = new List<FieldModel> { field1, field2 };
-
-            // Add mock rows to the DataSetPackage
-            var row = new RowModel
-            {
-                Id = field1.RowId,
-                TableId = tableID
-            };
-            _packedTables.Package.Rows = new List<RowModel> { row };
+            _packedTables.SaveTableToPackage(TableTest);
 
             // Add mock table to the DataSetPackage
-            _tableModel = new TableModel()
-            {
-                Id = tableID,
-                Name = "TestTable",              
-                Owner = _packedTables.Tables
-            };
-            _packedTables.Tables.Add( _tableModel) ;
+            _tableModel = _packedTables["TestTable"];
+            
         }
 
         [TestMethod]

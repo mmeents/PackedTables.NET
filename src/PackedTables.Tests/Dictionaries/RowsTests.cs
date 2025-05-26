@@ -54,7 +54,7 @@ namespace PackedTables.Tests.Dictionaries
         {
             // Arrange
             _tableModel.Rows = new Rows(_tableModel);
-            var row = new RowModel(_tableModel) { TableId = _tableModel.Id };
+            var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
 
             // Act
             var addedRow = _tableModel.Rows.Add(row);

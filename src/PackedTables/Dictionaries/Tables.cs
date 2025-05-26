@@ -85,5 +85,22 @@ namespace PackedTables.Dictionaries {
       }
     }
 
+    public virtual TableModel this[string tableName] {
+      get {
+        var table = this.FirstOrDefault(t => t.Value.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase)).Value;          
+        return table;
+      }      
+      set {           
+        var table = this.FirstOrDefault(t => t.Value.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase)).Value;
+        if (table != null) {
+          if (value == null) {
+            Remove(table.Id);
+          } else {
+            table = value;
+          }
+        }
+      }
+    }
+
   }
 }

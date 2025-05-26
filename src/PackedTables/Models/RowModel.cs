@@ -10,9 +10,17 @@ namespace PackedTables.Models {
 
   [MessagePackObject]
   public class RowModel {
-    public RowModel() { }
-    public RowModel(TableModel owner) {
+    public RowModel() { 
+      Owner = null;            
+    }
+    public RowModel(TableModel owner, Fields fields) {
       Owner = owner;      
+      if (owner != null && owner.Id != TableId) { 
+        if (owner.Id != Guid.Empty) {
+          TableId = owner.Id;
+        }
+      }
+      RowFields = fields;
     }
 
     [Key(0)]
@@ -22,7 +30,24 @@ namespace PackedTables.Models {
     public Guid TableId { get; set; } = Guid.Empty;
 
     [IgnoreMember]
-    public TableModel? Owner { get; set; } = null;
+    private TableModel? _owner = null;
+
+    [IgnoreMember]
+    public TableModel? Owner { 
+      get { return _owner; } 
+      set { 
+        _owner = value; 
+        if(_owner != null && _owner.Id != TableId) { 
+          TableId = _owner.Id; 
+        }        
+      } 
+    }
+
+    public void NotifyValueChanged(Guid fieldId) {
+      if (Owner == null) return;
+
+      //Owner.NotifyValueChanged(Id, fieldId);
+    }
 
     [IgnoreMember]
     public Fields? RowFields { get; set; }
@@ -30,7 +55,7 @@ namespace PackedTables.Models {
     [IgnoreMember]
     public FieldModel? this[string columnName] {
       get {
-        if (Owner == null || columnName == null || columnName.Length == 0) return null;
+        if (Owner == null || string.IsNullOrEmpty(columnName)) return null;
         var columnId = Owner!.GetColumnID(columnName);
         FieldModel? field = RowFields?.Values.FirstOrDefault(x => x.ColumnId == columnId);
         return field;

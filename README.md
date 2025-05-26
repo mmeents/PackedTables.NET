@@ -9,7 +9,7 @@ PackedTables.NET is a high-performance, lightweight library for managing and ser
 - **Base64 and JSON Support**: Save and load data in Base64 or JSON formats for interoperability.
 - **File Persistence**: Easily save and load datasets to and from files.
 - **Extensibility**: Includes extension methods for common operations like serialization, deserialization, and file I/O.
-- **.NET 9 Support**: Built with modern .NET features for maximum performance and compatibility.
+- **.NET 8 Support**: Built with modern .NET features for maximum performance and compatibility.
 
 ## Installation
 

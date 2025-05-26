@@ -7,13 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PackedTables.Dictionaries {
+
+  /// <summary>
+  ///  Every row has a collection of fields, which are governed by the columns in table.  
+  ///  Columns is a pointer to the tables-columns list.  it define the column name and type of data that can be stored in each field of a row.  
+  /// </summary>
   public class Fields : ConcurrentDictionary<Guid, FieldModel> {
-    private readonly Columns _columns = new();
+    private RowModel? _ownerRow = null;
+    public Columns _columns = new();
     private readonly object _lock = new();
     public Fields(Columns columns) : base() {
       _columns = columns;
     }
-    public Fields(IEnumerable<FieldModel> fields, Columns columns) : base() {
+    public Fields(IEnumerable<FieldModel> fields, RowModel ownerRow, Columns columns) : base() {
+      _ownerRow = ownerRow;
       _columns = columns;
       AsList = fields;
     }
@@ -37,10 +44,19 @@ namespace PackedTables.Dictionaries {
       return Guid.NewGuid();
     }
 
+    public void NotifyValueChanged(Guid fieldId) {
+      if (_ownerRow == null) return;
+      if (_ownerRow.Owner == null) return;
+      _ownerRow.Owner.NotifyValueChanged(_ownerRow.Id);
+    }
+
     public FieldModel Add(FieldModel field) {
       lock (_lock) {
         if (field.Id == Guid.Empty) {
           field.Id = GetNextId();
+        }
+        if (field.OwnerFields == null) {
+          field.OwnerFields = this;
         }
         var fieldColumnId = field.ColumnId;
         if (_columns.TryGetValue(fieldColumnId, out var column)) {
@@ -84,6 +100,49 @@ namespace PackedTables.Dictionaries {
           }
         }
       }
+    }
+
+    public void Syncronize(Fields fields) {
+      lock (_lock) {     
+        HashSet<Guid> rowIds = new HashSet<Guid>();       
+        HashSet<Guid> columnIds = new HashSet<Guid>();
+        foreach (var item in fields.Values) {
+          rowIds.Add(item.Id);
+          columnIds.Add(item.ColumnId);
+          if (base.ContainsKey(item.Id)) {
+            var field = base[item.Id];
+            field.RowId = item.RowId;
+            field.ColumnId = item.ColumnId;
+            field.ValueType = item.ValueType;
+            field.Value = item.Value;
+            var fieldColumnId = field.ColumnId;
+            if (_columns.TryGetValue(fieldColumnId, out var column)) {
+              field.ValueType = (ColumnType)column.ColumnType;
+            } else {
+              throw new KeyNotFoundException($"The column with ID {fieldColumnId} was not found in _columns.");
+            }
+          } else {
+            Add(item);
+          }
+        }
+        
+        var list = base.Values.Where(f => rowIds.Contains(f.RowId) && !columnIds.Contains(f.ColumnId)).ToList();
+        foreach (var item in list) {
+          if (!fields.ContainsKey(item.Id)) {
+            Remove(item.Id);
+          }
+        }
+      }
+    }
+
+    public void ClearAll() {
+      lock (_lock) {
+        base.Clear();
+      }
+    }
+
+    public new void Clear() {
+      ClearAll();
     }
 
   }

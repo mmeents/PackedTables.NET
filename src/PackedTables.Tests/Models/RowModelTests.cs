@@ -72,7 +72,7 @@ namespace PackedTables.Tests.Models
                 Value = "TestValue"
             };
             _fields.Add(field);
-            var row = new RowModel(_tableModel) {
+            var row = new RowModel(_tableModel, _fields) {
               RowFields = _fields
             };
 
@@ -88,10 +88,7 @@ namespace PackedTables.Tests.Models
         public void RowModel_Indexer_Get_ShouldReturnNullForNonExistentColumn()
         {
             // Arrange
-            var row = new RowModel(_tableModel)
-            {
-                RowFields = _fields
-            };
+            var row = new RowModel(_tableModel, _fields);
 
             // Act
             var retrievedField = row["NonExistentColumn"];
@@ -104,10 +101,7 @@ namespace PackedTables.Tests.Models
         public void RowModel_Indexer_Set_ShouldAddField()
         {
             // Arrange
-            var row = new RowModel(_tableModel)
-            {
-                RowFields = _fields
-            };
+            var row = new RowModel(_tableModel, _fields);
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
@@ -129,10 +123,7 @@ namespace PackedTables.Tests.Models
         public void RowModel_Indexer_Set_ShouldThrowExceptionForInvalidColumn()
         {
             // Arrange
-            var row = new RowModel(_tableModel)
-            {
-                RowFields = _fields
-            };
+            var row = new RowModel(_tableModel, _fields);
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
@@ -150,10 +141,7 @@ namespace PackedTables.Tests.Models
         public void RowModel_Indexer_Set_ShouldThrowExceptionForColumnIdMismatch()
         {
             // Arrange
-            var row = new RowModel(_tableModel)
-            {
-                RowFields = _fields
-            };
+            var row = new RowModel(_tableModel, _fields);
             var field = new FieldModel
             {
                 RowId = Guid.NewGuid(),
@@ -177,9 +165,7 @@ namespace PackedTables.Tests.Models
                 ValueString = "TestValue"
             };
             _fields.Add(field);
-            var row = new RowModel(_tableModel) {
-              RowFields = _fields
-            };
+            var row = new RowModel(_tableModel, _fields); 
 
             // Act
             row["Column1"] = null;

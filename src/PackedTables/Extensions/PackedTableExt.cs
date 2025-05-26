@@ -74,15 +74,15 @@ namespace PackedTables.Extensions {
         tbl.Name = tableModel.Name; // Update the name of the table if it exists.        
       }
       packedTables.Package.Tables = tables; // Update the package with the new list of tables.
-      columns.Syncronize(tableModel.Columns); // Syncronize the columns with the table model columns.      
+      columns.Synchronize(tableModel.Columns); // Synchronize the columns with the table model columns.      
       foreach (var row in tableModel.Rows.AsList) {
-        tableModel.Fields.Syncronize(row.RowFields);         
+        tableModel.Fields.Synchronize(row.RowFields);         
       }
       fields._columns = columns;
-      fields.Syncronize(tableModel.Fields); // Syncronize the fields with the table model fields.
+      fields.Synchronize(tableModel.Fields); // Synchronize the fields with the table model fields.
       rows._ownerTable = tableModel; // Set the owner of the rows to the table model.
       rows._packedTables = packedTables; // Set the packed tables of the rows to the packed tables.
-      rows.Syncronize(tableModel.Rows); // Syncronize the rows with the table model rows.
+      rows.Synchronize(tableModel.Rows); // Synchronize the rows with the table model rows.
       
 
       packedTables.Package.Rows = tableModel.Rows.AsList.ToList();

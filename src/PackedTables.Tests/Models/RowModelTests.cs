@@ -53,7 +53,7 @@ namespace PackedTables.Tests.Models
             var row = new RowModel();
 
             // Assert
-            Assert.AreEqual(Guid.Empty, row.Id);
+            Assert.AreNotEqual(Guid.Empty, row.Id);
             Assert.AreEqual(Guid.Empty, row.TableId);
             Assert.IsNull(row.Owner);
             Assert.IsNull(row.RowFields);

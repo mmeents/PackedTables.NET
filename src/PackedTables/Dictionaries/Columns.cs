@@ -130,7 +130,7 @@ namespace PackedTables.Dictionaries {
       }
     }
 
-    public void Syncronize(Columns columns) {
+    public void Synchronize(Columns columns) {
       lock (_lock) {   
         HashSet<Guid> ids = new HashSet<Guid>();
         foreach (var x in columns.Values) {       // Iterate through the columns in the provided collection

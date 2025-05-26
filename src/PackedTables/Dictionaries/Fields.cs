@@ -22,6 +22,7 @@ namespace PackedTables.Dictionaries {
     public Fields(IEnumerable<FieldModel> fields, RowModel ownerRow, Columns columns) : base() {
       _ownerRow = ownerRow;
       _columns = columns;
+      if (fields == null) return;
       AsList = fields;
     }
 
@@ -102,7 +103,7 @@ namespace PackedTables.Dictionaries {
       }
     }
 
-    public void Syncronize(Fields fields) {
+    public void Synchronize(Fields fields) {
       lock (_lock) {     
         HashSet<Guid> rowIds = new HashSet<Guid>();       
         HashSet<Guid> columnIds = new HashSet<Guid>();

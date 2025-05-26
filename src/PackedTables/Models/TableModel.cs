@@ -78,8 +78,17 @@ namespace PackedTables.Models {
     }
 
     public IEnumerable<FieldModel> GetFieldsOfRow(Guid rowId) {
-      if (Owner == null) return Enumerable.Empty<FieldModel>();
-      var allFields = Owner[Id].Fields;
+      List<FieldModel> fields = new List<FieldModel>();
+      if (Fields != null && Fields.Count > 0) { 
+        fields.AddRange(Fields.AsList.Where(x => x.RowId == rowId).ToList());
+      }       
+      if (!Rows.ContainsKey(rowId))  return fields;
+      if (Rows[rowId].RowFields != null && Rows[rowId].RowFields.Count >= 0) {
+        fields.AddRange(Rows[rowId].RowFields.AsList);
+      }      
+      if (Owner == null) return fields;
+      var allFields =  Owner[Id].Fields;
+      allFields.Synchronize(Fields);
       return allFields.Select(kvp => kvp.Value).Where(x => x.RowId == rowId);
     }
 
@@ -128,7 +137,7 @@ namespace PackedTables.Models {
     public void NotifyValueChanged(Guid rowId) {
       if (Owner == null) return;
       var fields = this.Rows[rowId].RowFields;
-      this.Fields.Syncronize(fields);      
+      this.Fields.Synchronize(fields);      
     }
 
     public void RemoveColumn(Guid columnId) {

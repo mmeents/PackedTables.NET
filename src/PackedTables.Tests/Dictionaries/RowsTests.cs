@@ -37,15 +37,13 @@ namespace PackedTables.Tests.Dictionaries
             _tableModel = new TableModel
             {
                 Id = Guid.NewGuid(),
-                Name = "TestTable",
-                Columns = _columns,
-                Fields = _fields
-
+                Name = "TestTable"
             };         
             
             _packedTables = new PackedTables();
-            _tables = _packedTables.Tables;
-            _tables.Add(_tableModel);
+            _packedTables.Package.Columns = _columns.AsList;
+            _packedTables.Package.Fields = _fields.AsList;      
+            _packedTables.Package.Tables = new List<TableModel>(){ _tableModel };           
 
         }
 
@@ -55,6 +53,7 @@ namespace PackedTables.Tests.Dictionaries
             // Arrange
             _tableModel.Rows = new Rows(_tableModel);
             var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row.Id), row, _tableModel.Columns);
 
             // Act
             var addedRow = _tableModel.Rows.Add(row);
@@ -69,8 +68,10 @@ namespace PackedTables.Tests.Dictionaries
         public void Rows_Remove_ById_ShouldRemoveRow()
         {
             // Arrange
-            var rows = new Rows(_tableModel);
-            var row = new RowModel { TableId = _tableModel.Id };
+            var rows = new Rows(_tableModel );
+            var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row.Id), row, _tableModel.Columns);
+
             var addedRow = rows.Add(row);
 
             // Act
@@ -85,7 +86,8 @@ namespace PackedTables.Tests.Dictionaries
         {
             // Arrange
             var rows = new Rows(_tableModel);
-            var row = new RowModel { TableId = _tableModel.Id };
+            var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row.Id), row, _tableModel.Columns);
             var addedRow = rows.Add(row);
 
             // Act
@@ -99,9 +101,13 @@ namespace PackedTables.Tests.Dictionaries
         public void Rows_AsList_ShouldReturnAllRows()
         {
             // Arrange
-            var rows = new Rows(_tableModel);
-            var row1 = new RowModel { TableId = _tableModel.Id };
-            var row2 = new RowModel { TableId = _tableModel.Id };
+            var rows = new Rows(_tableModel);            
+            var row1 = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row1.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row1.Id), row1, _tableModel.Columns);
+                  
+            var row2 = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row2.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row2.Id), row2, _tableModel.Columns);
+
             rows.Add(row1);
             rows.Add(row2);
 
@@ -119,8 +125,14 @@ namespace PackedTables.Tests.Dictionaries
         {
             // Arrange
             var rows = new Rows(_tableModel);
-            var row1 = new RowModel { TableId = _tableModel.Id };
-            var row2 = new RowModel { TableId = _tableModel.Id };
+            var row1 = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row1.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row1.Id), row1, _tableModel.Columns);
+
+            var row2 = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row2.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row2.Id), row2, _tableModel.Columns);
+
+            rows.Add(row1);
+            rows.Add(row2);
             var rowList = new List<RowModel> { row1, row2 };
 
             // Act
@@ -137,7 +149,8 @@ namespace PackedTables.Tests.Dictionaries
         {
             // Arrange
             var rows = new Rows(_tableModel);
-            var row = new RowModel { TableId = _tableModel.Id };
+            var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row.Id), row, _tableModel.Columns);
             var addedRow = rows.Add(row);
 
             // Act
@@ -152,7 +165,8 @@ namespace PackedTables.Tests.Dictionaries
         {
             // Arrange
             var rows = new Rows(_tableModel);
-            var row = new RowModel { TableId = _tableModel.Id };
+            var row = new RowModel(_tableModel, _tableModel.Fields) { TableId = _tableModel.Id };
+            row.RowFields = new Fields(_packedTables.Fields.AsList.Where(x => x.RowId == row.Id), row, _tableModel.Columns);
 
             // Act
             rows[row.Id] = row;

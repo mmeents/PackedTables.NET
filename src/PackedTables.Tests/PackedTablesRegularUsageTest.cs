@@ -28,11 +28,9 @@ namespace PackedTables.Tests {
         settings = packedTables.AddTable("Settings");
         settings.AddColumn("Key", (short)ColumnType.String);
         settings.AddColumn("Value", (short)ColumnType.String);
-      }
-           
+      }          
 
       packedTables.SaveTableToPackage(settings);
-
 
       var retrievedSettings = packedTables["Settings"];
       Assert.IsNotNull(retrievedSettings, "Settings table should not be null after saving.");

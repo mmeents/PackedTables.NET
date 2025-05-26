@@ -24,7 +24,7 @@ namespace PackedTables.Models {
     }
 
     [Key(0)]
-    public Guid Id { get; set; } = Guid.Empty;
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     [Key(1)]
     public Guid TableId { get; set; } = Guid.Empty;

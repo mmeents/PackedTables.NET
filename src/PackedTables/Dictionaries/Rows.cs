@@ -22,10 +22,16 @@ namespace PackedTables.Dictionaries {
     }   
     public Rows(TableModel owner, IEnumerable<RowModel> rows) : base() {
       _ownerTable = owner;
+      if (_ownerTable != null && _ownerTable.Owner?.Owner != null) {
+        _packedTables = _ownerTable.Owner.Owner;
+      }
       AsList = rows;
     }
     public Rows(TableModel owner) : base() {
       _ownerTable = owner;
+      if (_ownerTable != null && _ownerTable?.Owner?.Owner != null) {
+        _packedTables = _ownerTable.Owner.Owner;
+      }
     }
     public virtual new RowModel this[Guid id] {
       get {
@@ -60,7 +66,11 @@ namespace PackedTables.Dictionaries {
         }
         row.Owner = _ownerTable;
         var rowfields = new Fields(_ownerTable.GetFieldsOfRow(row.Id), row, _ownerTable.Columns);
-        row.RowFields.Syncronize(rowfields);
+        if (row.RowFields == null) {
+          row.RowFields = rowfields;
+        } else {
+          row.RowFields.Synchronize(rowfields);
+        }       
 
         foreach (var columnId in _ownerTable.Columns.Keys) {          
           var column = _ownerTable.Columns[columnId];
@@ -117,7 +127,7 @@ namespace PackedTables.Dictionaries {
       return rows;
     }
 
-    public void Syncronize(Rows rows) {
+    public void Synchronize(Rows rows) {
       lock (_lock) {
         if (rows == null || rows.Count == 0) return;
         HashSet<Guid> TableIds = new HashSet<Guid>();

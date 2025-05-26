@@ -47,8 +47,8 @@ namespace PackedTables
     /// <returns></returns>
     public TableModel PopulateTable(TableModel table) {
       var cols = GetColumnsOfTable(table.Id);
-      cols.Syncronize(table.Columns); // Syncronize the columns with the table model columns.
-      table.Columns.Syncronize(cols); // Syncronize the columns with the table model columns.
+      cols.Synchronize(table.Columns); // Synchronize the columns with the table model columns.
+      table.Columns.Synchronize(cols); // Synchronize the columns with the table model columns.
       var listRows = Package.Rows.Where(x => x.TableId == table.Id);
       List<FieldModel> fields = new List<FieldModel>();      
       foreach (var item in listRows) {
@@ -98,7 +98,9 @@ namespace PackedTables
     /// <returns></returns>
     public TableModel? this[string tableName] {  
       get {
-        var table = Tables[tableName];          
+        var table = Tables[tableName]; 
+        if (table == null) return null; // If the table does not exist, return null.
+        SynchronizeTable(table); // Ensure the table is synchronize with the package 
         return table;
       }      
       set {           
@@ -107,11 +109,11 @@ namespace PackedTables
           if (value == null) {
             Tables.Remove(table.Id);
           } else {
-            SyncronizeTable(table); // Update the existing table with the new values
+            SynchronizeTable(table); // Update the existing table with the new values
           }          
         } else {
           if (value != null) {
-            SyncronizeTable(value); // If the table does not exist, add it to the package
+            SynchronizeTable(value); // If the table does not exist, add it to the package
           }
         }
       }
@@ -121,7 +123,7 @@ namespace PackedTables
     /// Inverse of the PopulateTable method.  This method updates the package with the changes made to the table model.
     /// </summary>
     /// <param name="saveTableModel">TableModel from Tables dictionary</param>
-    public void SyncronizeTable(TableModel saveTableModel) {
+    public void SynchronizeTable(TableModel saveTableModel) {
       var tableId = saveTableModel.Id;  // Get the table ID from the saveTableModel
             
       var newColumns = Columns;         // Get the current columns from the package, this transorms the columns list into a dictionary.
@@ -131,9 +133,9 @@ namespace PackedTables
 
       newTables[saveTableModel.Id] = saveTableModel;
 
-      newColumns.Syncronize(saveTableModel.Columns); // Syncronize the columns with the saveTableModel columns.
-      newFields.Syncronize(saveTableModel.Fields); // Syncronize the fields with the saveTableModel fields.
-      newRowsList.Syncronize(saveTableModel.Rows); // Syncronize the rows with the saveTableModel rows.
+      newColumns.Synchronize(saveTableModel.Columns); // Synchronize the columns with the saveTableModel columns.
+      newFields.Synchronize(saveTableModel.Fields); // Synchronize the fields with the saveTableModel fields.
+      newRowsList.Synchronize(saveTableModel.Rows); // Synchronize the rows with the saveTableModel rows.
 
       Columns = newColumns;             // Update the package with the new columns. 
       Fields = newFields;               // Update the package with the new fields.

@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackedTables", "src\PackedTables\PackedTables.csproj", "{0DECF966-2649-4A7E-AE23-2CB11BB9DB9D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackedTables.Tests", "src\PackedTables.Tests\PackedTables.Tests.csproj", "{6EA43261-6071-4D8A-8332-913443C2B8B3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackedTables.Viewer", "PackedTables.Viewer.Winforms\PackedTables.Viewer\PackedTables.Viewer.csproj", "{FD3AD8EC-035D-4F89-B151-56681F617629}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackedTables.Net", "src\PackedTables.Net.csproj", "{FAC2CB9B-DC30-A018-5388-76CF9E0017F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackedTables.Tests", "PackedTables.Tests\PackedTables.Tests.csproj", "{90DA22AF-81D4-7507-2757-932FAF149E13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +21,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0DECF966-2649-4A7E-AE23-2CB11BB9DB9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0DECF966-2649-4A7E-AE23-2CB11BB9DB9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0DECF966-2649-4A7E-AE23-2CB11BB9DB9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0DECF966-2649-4A7E-AE23-2CB11BB9DB9D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EA43261-6071-4D8A-8332-913443C2B8B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EA43261-6071-4D8A-8332-913443C2B8B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EA43261-6071-4D8A-8332-913443C2B8B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EA43261-6071-4D8A-8332-913443C2B8B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD3AD8EC-035D-4F89-B151-56681F617629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD3AD8EC-035D-4F89-B151-56681F617629}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD3AD8EC-035D-4F89-B151-56681F617629}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD3AD8EC-035D-4F89-B151-56681F617629}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC2CB9B-DC30-A018-5388-76CF9E0017F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC2CB9B-DC30-A018-5388-76CF9E0017F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC2CB9B-DC30-A018-5388-76CF9E0017F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC2CB9B-DC30-A018-5388-76CF9E0017F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90DA22AF-81D4-7507-2757-932FAF149E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90DA22AF-81D4-7507-2757-932FAF149E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90DA22AF-81D4-7507-2757-932FAF149E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90DA22AF-81D4-7507-2757-932FAF149E13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

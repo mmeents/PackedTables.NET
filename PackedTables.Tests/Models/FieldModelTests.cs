@@ -1,7 +1,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PackedTables.Models;
-using PackedTables.Extensions;
+using PackedTables.Net;
 
 namespace PackedTables.Tests.Models
 {
@@ -15,9 +14,9 @@ namespace PackedTables.Tests.Models
             var field = new FieldModel();
 
             // Assert
-            Assert.AreEqual(Guid.Empty, field.Id);
-            Assert.AreEqual(Guid.Empty, field.RowId);
-            Assert.AreEqual(Guid.Empty, field.ColumnId);
+            Assert.AreEqual(0, field.Id);
+            Assert.AreEqual(0, field.RowId);
+            Assert.AreEqual(0, field.ColumnId);
             Assert.AreEqual(string.Empty, field.ValueString);
             Assert.AreEqual(ColumnType.Null, field.ValueType);
         }

@@ -5,9 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PackedTables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PackedTables.Models;
-using PackedTables.Dictionaries;
-using PackedTables.Extensions;
+using PackedTables.Net;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -22,15 +20,13 @@ namespace PackedTables.Tests {
     [TestMethod]
     public void TestPackedTablesRegularUsage() {
       // Arrange
-      var packedTables = new PackedTables();
-      var settings = packedTables["Settings"];
+      var packedTables = new PackedTableSet();
+      var settings = packedTables["Settings"];               // This is a lookup, if the table does not exist, it will return null.
       if (settings == null) {
-        settings = packedTables.AddTable("Settings");
-        settings.AddColumn("Key", (short)ColumnType.String);
-        settings.AddColumn("Value", (short)ColumnType.String);
-      }          
-
-      packedTables.SaveTableToPackage(settings);
+        settings = packedTables.AddTable("Settings");         // This will create a new table with the name "Settings".
+        settings.AddColumn("Key", ColumnType.String);  // Adding a column named "Key" of type String.
+        settings.AddColumn("Value", ColumnType.String);// Adding a column named "Value" of type String. 
+      }               
 
       var retrievedSettings = packedTables["Settings"];
       Assert.IsNotNull(retrievedSettings, "Settings table should not be null after saving.");
@@ -46,12 +42,12 @@ namespace PackedTables.Tests {
     [TestMethod]
     public void TestPackedTablesRegularUsage_MoreUsage() {
       // Arrange
-      var packedTables = new PackedTables();
+      var packedTables = new PackedTableSet();
       var settings = packedTables["Settings"];
       if (settings == null) {
         settings = packedTables.AddTable("Settings");
-        settings.AddColumn("Key", (short)ColumnType.String);
-        settings.AddColumn("Value", (short)ColumnType.String);
+        settings.AddColumn("Key", ColumnType.String);
+        settings.AddColumn("Value", ColumnType.String);
       }
 
       var aRow = settings.AddRow();
@@ -60,7 +56,6 @@ namespace PackedTables.Tests {
       var aRow2 = settings.AddRow();
       aRow2["Key"].Value = "TestKey2";
       aRow2["Value"].Value = "TestValue2";
-      packedTables.SaveTableToPackage(settings);
 
 
       var retrievedSettings = packedTables["Settings"];
@@ -79,8 +74,8 @@ namespace PackedTables.Tests {
     public void TestPackedTablesLoadFromBase64() {
       // Arrange
       
-      var packedTables = new PackedTables();
-      string base64Data = "lJKV2SQ0YzczMmZmMi1jMDc5LTQwNzctODBmMy02YzYzNjg5ZmYxNTDZJDkzNDFmMjcxLTAyNTYtNDUwOC05MDlkLTc4NmZhYjNhNGFiMAAIpVZhbHVlldkkY2NmY2NmYzItNzJjMy00ZDE3LTkyYTgtODI5OWFkZjliNmU22SQ5MzQxZjI3MS0wMjU2LTQ1MDgtOTA5ZC03ODZmYWIzYTRhYjAACKNLZXmQkJGS2SQ5MzQxZjI3MS0wMjU2LTQ1MDgtOTA5ZC03ODZmYWIzYTRhYjCoU2V0dGluZ3M="; 
+      var packedTables = new PackedTableSet();
+      string base64Data = "koEBlgGoU2V0dGluZ3OCAZUBAQEIo0tleQKVAgECCKVWYWx1ZYIBkwEBggGVAQEBqFRlc3RLZXkxCAKVAgECqlRlc3RWYWx1ZTEIApMCAYIBlQECAahUZXN0S2V5MggClQICAqpUZXN0VmFsdWUyCKDDgahTZXR0aW5ncwE="; 
       packedTables.LoadFromBase64String(base64Data);
       // Act
       var settings = packedTables["Settings"];
@@ -88,8 +83,8 @@ namespace PackedTables.Tests {
       // Assert
       Assert.IsNotNull(settings, "Settings table should not be null after loading from base64.");
       Assert.IsTrue(settings.Columns.Count == 2, "Settings table should have 2 columns after loading Key and Value.");
-      Assert.AreEqual("Key", settings["Key"].ColumnName, "First column should be 'Key'.");
-      Assert.AreEqual("Value", settings["Value"].ColumnName, "Second column should be 'Value'.");
+      Assert.AreEqual("Key", settings.Columns[1].ColumnName, "First column should be 'Key'.");
+      Assert.AreEqual("Value", settings.Columns[2].ColumnName, "Second column should be 'Value'.");
      
     }
 
@@ -97,8 +92,8 @@ namespace PackedTables.Tests {
     public void TestPackedTablesLoadFromBase64_AddsRows() {
       // Arrange
 
-      var packedTables = new PackedTables();
-      string base64Data = "lJKV2SQ0YzczMmZmMi1jMDc5LTQwNzctODBmMy02YzYzNjg5ZmYxNTDZJDkzNDFmMjcxLTAyNTYtNDUwOC05MDlkLTc4NmZhYjNhNGFiMAAIpVZhbHVlldkkY2NmY2NmYzItNzJjMy00ZDE3LTkyYTgtODI5OWFkZjliNmU22SQ5MzQxZjI3MS0wMjU2LTQ1MDgtOTA5ZC03ODZmYWIzYTRhYjAACKNLZXmQkJGS2SQ5MzQxZjI3MS0wMjU2LTQ1MDgtOTA5ZC03ODZmYWIzYTRhYjCoU2V0dGluZ3M="; 
+      var packedTables = new PackedTableSet();
+      string base64Data = "koEBlgGoU2V0dGluZ3OCAZUBAQEIo0tleQKVAgECCKVWYWx1ZYIBkwEBggGVAQEBqFRlc3RLZXkxCAKVAgECqlRlc3RWYWx1ZTEIApMCAYIBlQECAahUZXN0S2V5MggClQICAqpUZXN0VmFsdWUyCKDDgahTZXR0aW5ncwE="; 
       packedTables.LoadFromBase64String(base64Data);
       // Act
       var settings = packedTables["Settings"];
@@ -106,30 +101,28 @@ namespace PackedTables.Tests {
       // Assert
       Assert.IsNotNull(settings, "Settings table should not be null after loading from base64.");
       Assert.IsTrue(settings.Columns.Count == 2, "Settings table should have 2 columns after loading Key and Value.");
-      Assert.AreEqual("Key", settings["Key"].ColumnName, "First column should be 'Key'.");
-      Assert.AreEqual("Value", settings["Value"].ColumnName, "Second column should be 'Value'.");
+      Assert.AreEqual("Key", settings.Columns[1].ColumnName, "First column should be 'Key'.");
+      Assert.AreEqual("Value", settings.Columns[2].ColumnName, "Second column should be 'Value'.");
 
       var newRow = settings.AddRow();
       newRow["Key"].Value = "NewKey";
       newRow["Value"].Value = "NewValue";
-            
-      settings.SaveToOwner();
-
+      
 
       var retrievedSettings = packedTables["Settings"];
       Assert.IsNotNull(retrievedSettings, "Settings table should not be null after saving.");
       Assert.IsTrue(retrievedSettings.Columns.Count == 2, "Settings table should have 2 columns after saving Key and Value.");
-      Assert.IsTrue(retrievedSettings.Rows.Count == 1, "Settings table should have one row after saving.");
+      Assert.IsTrue(retrievedSettings.Rows.Count == 3, "Settings table should have one row after saving.");
 
 
-      var newRow2 = retrievedSettings.Rows.AsList.FirstOrDefault();
+      var newRow2 = retrievedSettings.Current;
       Assert.IsNotNull(newRow2, "New row should not be null.");
       Assert.AreEqual("NewKey", newRow2["Key"].Value, "New row's Key value should be 'NewKey'.");
       Assert.AreEqual("NewValue", newRow2["Value"].Value, "New row's Value value should be 'NewValue'.");
 
 
-      var allRows = retrievedSettings.Rows.AsList;
-      Assert.AreEqual(1, allRows.Count(), "There should be 1 row in the retrieved settings.");
+      var allRows = retrievedSettings.Rows.Values;
+      Assert.AreEqual(3, allRows.Count(), "There should be 3 rows in the retrieved settings.");
       
       string json = packedTables.SaveToJson();
       Console.WriteLine(json);
@@ -139,7 +132,6 @@ namespace PackedTables.Tests {
 
     }
 
-
-
+   
   }
 }

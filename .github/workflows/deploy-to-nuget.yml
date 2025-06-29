@@ -39,7 +39,7 @@ jobs:
 
     # Run tests
     - name: Run tests
-      run: dotnet test ./src/PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
+      run: dotnet test ./PackedTables.Tests/PackedTables.Tests.csproj --configuration Release --no-build
 
     # Pack the project
     - name: Pack

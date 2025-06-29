@@ -165,7 +165,7 @@ namespace PackedTables.Net
 
       foreach (var columnId in Columns.Keys) {
         var column = Columns[columnId];
-        if (column != null && newRow[column.ColumnName] == null) {
+        if (column != null) {
           var field = new FieldModel() {           
             OwnerRow = newRow,
             Id = columnId,

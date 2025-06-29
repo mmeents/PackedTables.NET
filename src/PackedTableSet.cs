@@ -119,7 +119,7 @@ namespace PackedTables.Net
     private int GetNextTableId() {
       if (_Package.Tables.Count == 0) return 1;
       var max = _Package.Tables.Keys.Max(x => x);
-      return (short)(max + 1);
+      return (int)(max + 1);
     } 
 
     public void RemoveTable(string tableName) {

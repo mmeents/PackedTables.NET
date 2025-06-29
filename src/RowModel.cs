@@ -46,10 +46,11 @@ namespace PackedTables.Net {
     public FieldModel this[string columnName] {
       get {
         if (Owner == null || string.IsNullOrEmpty(columnName)) throw new Exception("Owner is null or bad column name");
-        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception("Column not found"); 
-        KeyValuePair<int, FieldModel>? field = RowFields?.FirstOrDefault(x => x.Value.ColumnId == columnId);
-        if (field == null) throw new Exception("Rowfield not found");
-        return field.Value.Value;
+        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception("Column not found");         
+        var fieldExists = RowFields.Any(x => x.Value.ColumnId == columnId);
+        if (!fieldExists) throw new Exception("Rowfield not found");
+        var field = RowFields.First(x => x.Value.ColumnId == columnId);
+        return field.Value;
       }
       set {
         if (Owner == null || columnName == null || columnName.Length == 0) throw new Exception("Owner is null or bad column name ");

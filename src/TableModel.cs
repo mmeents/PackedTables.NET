@@ -83,6 +83,7 @@ namespace PackedTables.Net
         _ = this._columnNameToIdIndex.TryRemove(column.ColumnName, out _);
         _ = this._columnOrderByRankToIdIndex.TryRemove(column.Rank, out _);
         this.Columns.Remove(columnId, out var columnM);
+        this.RebuildColumnIndex();
       }
     }
 
@@ -154,8 +155,13 @@ namespace PackedTables.Net
       RowModel newRow = new RowModel(this){
         Id = GetNextNewRowIndex()
       };      
-      Rows[newRow.Id] = newRow;      
-      RowIndex[newRow.Id] = newRow.Id;
+      Rows[newRow.Id] = newRow; 
+      if (RowIndex.Count == 0) {
+        RowIndex[1] = newRow.Id; // first row is always at index 1
+      } else {
+        var nextNewRowNumber = this.RowIndex.Keys.Max() + 1;
+        RowIndex[nextNewRowNumber] = newRow.Id;
+      }
 
       foreach (var columnId in Columns.Keys) {
         var column = Columns[columnId];

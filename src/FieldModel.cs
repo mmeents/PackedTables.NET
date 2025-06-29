@@ -1,4 +1,4 @@
-﻿using PackedTables.Models;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,7 +6,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PackedTables.Extensions {
+namespace PackedTables.Net {
+  [MessagePackObject]
+  public class FieldModel {
+
+    [IgnoreMember]
+    public RowModel? OwnerRow { get; set; } = null;
+
+    [Key(0)]
+    public int Id { get; set; } = 0;
+    [Key(1)]
+    public int RowId { get; set; }
+    [Key(2)]
+    public int ColumnId { get; set; }
+    [Key(3)]
+    public string ValueString { get; set; } = "";
+    [Key(4)]
+    public ColumnType ValueType { get; set; } = ColumnType.Null;
+
+    [IgnoreMember]
+    public Object Value {
+      get {
+        return this.AsObject();
+      }
+      set {
+        if (this.ValueType == FieldExt.GetColumnType(value)) {
+          this.ValueString = this.GetColumnValueToString(value);
+          //       if (OwnerFields != null) {
+          //         OwnerFields.NotifyValueChanged(this.RowId);
+          //       }
+        } else {
+          throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
+        }
+
+      }
+    }
+  }
+
+
   public static class FieldExt {
 
     public static Object AsObject(this FieldModel field) {
@@ -20,8 +57,34 @@ namespace PackedTables.Extensions {
         case ColumnType.Decimal: ret = field.ValueString.AsDecimal(); break;
         case ColumnType.Bytes: ret = field.ValueString.FromUTF8AsBytes(); break;
         case ColumnType.Int64: ret = field.ValueString.AsInt64(); break;
+        case ColumnType.Guid: ret = Guid.Parse(field.ValueString); break;
+        case ColumnType.Unknown: ret = ""; break;
       }
       return ret;
+    }
+
+    public static string GetValueString(Object value) {
+      if (value == null) {
+        return "";
+      } else if (value is string valString) {
+        return valString;
+      } else if (value is int valInt) {
+        return valInt.ToString();
+      } else if (value is long valLong) {
+        return valLong.ToString();
+      } else if (value is DateTime valDateTime) {
+        return valDateTime.AsStrDateTime24H();
+      } else if (value is bool valBool) {
+        return valBool.ToString();
+      } else if (value is Decimal valDecimal) {
+        return valDecimal.ToString();
+      } else if (value is byte[] valBytes) {
+        return valBytes.FromUTF8BytesAsString();
+      } else if (value is Guid valGuid) {
+        return valGuid.ToString();
+      } else {
+        throw new Exception($"Unknow Object ValueType");
+      }      
     }
 
     public static string GetColumnValueToString(this FieldModel field, Object value) {
@@ -42,11 +105,15 @@ namespace PackedTables.Extensions {
         field.ValueString = valDecimal.ToString();
       } else if (value is byte[] valBytes) {
         field.ValueString = valBytes.FromUTF8BytesAsString();
+      } else if (value is Guid valGuid) {
+        field.ValueString = valGuid.ToString();
+      } else {
+        throw new Exception($"FieldModel:Column ValueType {field.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
       }
       return field.ValueString;
     }
 
-    public static ColumnType GetColumnType( Object value) {
+    public static ColumnType GetColumnType(Object value) {
       if (value == null) {
         return ColumnType.Null;
       } else if (value is string) {
@@ -66,7 +133,7 @@ namespace PackedTables.Extensions {
       } else if (value is Guid) {
         return ColumnType.Guid;
       }
-      return ColumnType.Unknown; 
+      return ColumnType.Unknown;
     }
 
     public static int AsInt32(this FieldModel field) {
@@ -215,4 +282,6 @@ namespace PackedTables.Extensions {
       return 1;
     }
   }
+
+
 }

@@ -1,9 +1,9 @@
 using System;
 using MessagePack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PackedTables.Models;
+using PackedTables.Net;
 
-namespace PackedTables.Tests.Models
+namespace PackedTables.Tests
 {
     [TestClass]
     public class ColumnModelTests
@@ -15,10 +15,10 @@ namespace PackedTables.Tests.Models
             var column = new ColumnModel();
 
             // Assert
-            Assert.AreEqual(Guid.Empty, column.Id);
-            Assert.AreEqual(Guid.Empty, column.TableId);
+            Assert.AreEqual(0, column.Id);
+            Assert.AreEqual(0, column.TableId);
             Assert.AreEqual(0, column.Rank);
-            Assert.AreEqual(0, column.ColumnType);
+            Assert.AreEqual(0, (int)column.ColumnType);
             Assert.AreEqual(string.Empty, column.ColumnName);
         }
 
@@ -26,10 +26,10 @@ namespace PackedTables.Tests.Models
         public void ColumnModel_PropertyAssignment_ShouldWorkCorrectly()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var tableId = Guid.NewGuid();
-            var rank = 1;
-            var columnType = (short)ColumnType.String;
+            int id = 1;
+            int tableId = 1;
+            int rank = 1;
+            var columnType = ColumnType.String;
             var columnName = "TestColumn";
 
             // Act
@@ -56,10 +56,10 @@ namespace PackedTables.Tests.Models
             // Arrange
             var column = new ColumnModel
             {
-                Id = Guid.NewGuid(),
-                TableId = Guid.NewGuid(),
+                Id = 1,
+                TableId = 1,
                 Rank = 1,
-                ColumnType = (short)ColumnType.Int32,
+                ColumnType = ColumnType.Int32,
                 ColumnName = "SerializedColumn"
             };
 

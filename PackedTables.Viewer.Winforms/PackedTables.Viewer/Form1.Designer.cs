@@ -33,17 +33,27 @@
       comboBox1 = new ComboBox();
       splitContainer2 = new SplitContainer();
       splitContainer3 = new SplitContainer();
+      panel1 = new Panel();
+      label3 = new Label();
+      label2 = new Label();
+      cbType = new ComboBox();
+      tbColumnName = new TextBox();
       treeView1 = new TreeView();
       tvMenu = new ContextMenuStrip(components);
       addTableToolStripMenuItem = new ToolStripMenuItem();
-      removeTableToolStripMenuItem = new ToolStripMenuItem();
       addColumnToolStripMenuItem = new ToolStripMenuItem();
-      removeColumnToolStripMenuItem = new ToolStripMenuItem();
       addRowToolStripMenuItem = new ToolStripMenuItem();
+      toolStripMenuItem1 = new ToolStripSeparator();
       removeRowToolStripMenuItem = new ToolStripMenuItem();
+      removeColumnToolStripMenuItem = new ToolStripMenuItem();
+      removeTableToolStripMenuItem = new ToolStripMenuItem();
+      toolStripMenuItem2 = new ToolStripSeparator();
+      saveToolStripMenuItem = new ToolStripMenuItem();
+      saveAsToolStripMenuItem = new ToolStripMenuItem();
       vrMain = new DataGridView();
       textBox1 = new TextBox();
       odMain = new OpenFileDialog();
+      saveDialog = new SaveFileDialog();
       ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
       splitContainer1.Panel1.SuspendLayout();
       splitContainer1.Panel2.SuspendLayout();
@@ -56,6 +66,7 @@
       splitContainer3.Panel1.SuspendLayout();
       splitContainer3.Panel2.SuspendLayout();
       splitContainer3.SuspendLayout();
+      panel1.SuspendLayout();
       tvMenu.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)vrMain).BeginInit();
       SuspendLayout();
@@ -168,7 +179,9 @@
       // 
       // splitContainer3.Panel1
       // 
+      splitContainer3.Panel1.Controls.Add(panel1);
       splitContainer3.Panel1.Controls.Add(treeView1);
+      splitContainer3.Panel1.Resize += splitContainer3_Panel1_Resize;
       // 
       // splitContainer3.Panel2
       // 
@@ -177,24 +190,75 @@
       splitContainer3.SplitterDistance = 249;
       splitContainer3.TabIndex = 0;
       // 
+      // panel1
+      // 
+      panel1.Controls.Add(label3);
+      panel1.Controls.Add(label2);
+      panel1.Controls.Add(cbType);
+      panel1.Controls.Add(tbColumnName);
+      panel1.Dock = DockStyle.Bottom;
+      panel1.Location = new Point(0, 207);
+      panel1.Name = "panel1";
+      panel1.Size = new Size(249, 58);
+      panel1.TabIndex = 2;
+      // 
+      // label3
+      // 
+      label3.AutoSize = true;
+      label3.Location = new Point(24, 37);
+      label3.Name = "label3";
+      label3.Size = new Size(31, 15);
+      label3.TabIndex = 3;
+      label3.Text = "Type";
+      // 
+      // label2
+      // 
+      label2.AutoSize = true;
+      label2.Location = new Point(7, 10);
+      label2.Name = "label2";
+      label2.Size = new Size(50, 15);
+      label2.TabIndex = 2;
+      label2.Text = "Column";
+      // 
+      // cbType
+      // 
+      cbType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+      cbType.FormattingEnabled = true;
+      cbType.Items.AddRange(new object[] { "Unknown", "Null", "Boolean", "Int32", "Int64", "Decimal", "DateTime", "Guid", "String" });
+      cbType.Location = new Point(63, 33);
+      cbType.Name = "cbType";
+      cbType.Size = new Size(177, 23);
+      cbType.TabIndex = 1;
+      cbType.SelectedIndexChanged += cbType_SelectedIndexChanged;
+      // 
+      // tbColumnName
+      // 
+      tbColumnName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+      tbColumnName.Location = new Point(63, 7);
+      tbColumnName.Name = "tbColumnName";
+      tbColumnName.Size = new Size(177, 23);
+      tbColumnName.TabIndex = 0;
+      tbColumnName.KeyPress += tbColumnName_KeyPress;
+      tbColumnName.Leave += tbColumnName_Leave;
+      // 
       // treeView1
       // 
       treeView1.ContextMenuStrip = tvMenu;
-      treeView1.Dock = DockStyle.Fill;
+      treeView1.Dock = DockStyle.Top;
       treeView1.ImageIndex = 0;
       treeView1.ImageList = imageList1;
       treeView1.Location = new Point(0, 0);
       treeView1.Name = "treeView1";
       treeView1.SelectedImageIndex = 0;
-      treeView1.Size = new Size(249, 265);
+      treeView1.Size = new Size(249, 201);
       treeView1.TabIndex = 0;
       treeView1.AfterSelect += treeView1_AfterSelect;
       // 
       // tvMenu
       // 
-      tvMenu.Items.AddRange(new ToolStripItem[] { addTableToolStripMenuItem, removeTableToolStripMenuItem, addColumnToolStripMenuItem, removeColumnToolStripMenuItem, addRowToolStripMenuItem, removeRowToolStripMenuItem });
+      tvMenu.Items.AddRange(new ToolStripItem[] { addTableToolStripMenuItem, addColumnToolStripMenuItem, addRowToolStripMenuItem, toolStripMenuItem1, removeRowToolStripMenuItem, removeColumnToolStripMenuItem, removeTableToolStripMenuItem, toolStripMenuItem2, saveToolStripMenuItem, saveAsToolStripMenuItem });
       tvMenu.Name = "tvMenu";
-      tvMenu.Size = new Size(164, 136);
+      tvMenu.Size = new Size(164, 192);
       tvMenu.Opening += tvMenu_Opening;
       // 
       // addTableToolStripMenuItem
@@ -204,35 +268,64 @@
       addTableToolStripMenuItem.Text = "Add Table";
       addTableToolStripMenuItem.Click += addTableToolStripMenuItem_Click;
       // 
-      // removeTableToolStripMenuItem
-      // 
-      removeTableToolStripMenuItem.Name = "removeTableToolStripMenuItem";
-      removeTableToolStripMenuItem.Size = new Size(163, 22);
-      removeTableToolStripMenuItem.Text = "Remove Table";
-      // 
       // addColumnToolStripMenuItem
       // 
       addColumnToolStripMenuItem.Name = "addColumnToolStripMenuItem";
       addColumnToolStripMenuItem.Size = new Size(163, 22);
       addColumnToolStripMenuItem.Text = "Add Column";
-      // 
-      // removeColumnToolStripMenuItem
-      // 
-      removeColumnToolStripMenuItem.Name = "removeColumnToolStripMenuItem";
-      removeColumnToolStripMenuItem.Size = new Size(163, 22);
-      removeColumnToolStripMenuItem.Text = "Remove Column";
+      addColumnToolStripMenuItem.Click += addColumnToolStripMenuItem_Click;
       // 
       // addRowToolStripMenuItem
       // 
       addRowToolStripMenuItem.Name = "addRowToolStripMenuItem";
       addRowToolStripMenuItem.Size = new Size(163, 22);
       addRowToolStripMenuItem.Text = "Add Row";
+      addRowToolStripMenuItem.Click += addRowToolStripMenuItem_Click;
+      // 
+      // toolStripMenuItem1
+      // 
+      toolStripMenuItem1.Name = "toolStripMenuItem1";
+      toolStripMenuItem1.Size = new Size(160, 6);
       // 
       // removeRowToolStripMenuItem
       // 
       removeRowToolStripMenuItem.Name = "removeRowToolStripMenuItem";
       removeRowToolStripMenuItem.Size = new Size(163, 22);
       removeRowToolStripMenuItem.Text = "Remove Row";
+      removeRowToolStripMenuItem.Click += removeRowToolStripMenuItem_Click;
+      // 
+      // removeColumnToolStripMenuItem
+      // 
+      removeColumnToolStripMenuItem.Name = "removeColumnToolStripMenuItem";
+      removeColumnToolStripMenuItem.Size = new Size(163, 22);
+      removeColumnToolStripMenuItem.Text = "Remove Column";
+      removeColumnToolStripMenuItem.Click += removeColumnToolStripMenuItem_Click;
+      // 
+      // removeTableToolStripMenuItem
+      // 
+      removeTableToolStripMenuItem.Name = "removeTableToolStripMenuItem";
+      removeTableToolStripMenuItem.Size = new Size(163, 22);
+      removeTableToolStripMenuItem.Text = "Remove Table";
+      removeTableToolStripMenuItem.Click += removeTableToolStripMenuItem_Click;
+      // 
+      // toolStripMenuItem2
+      // 
+      toolStripMenuItem2.Name = "toolStripMenuItem2";
+      toolStripMenuItem2.Size = new Size(160, 6);
+      // 
+      // saveToolStripMenuItem
+      // 
+      saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+      saveToolStripMenuItem.Size = new Size(163, 22);
+      saveToolStripMenuItem.Text = "Save";
+      saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
+      // 
+      // saveAsToolStripMenuItem
+      // 
+      saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+      saveAsToolStripMenuItem.Size = new Size(163, 22);
+      saveAsToolStripMenuItem.Text = "Save As";
+      saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
       // 
       // vrMain
       // 
@@ -266,6 +359,12 @@
       odMain.Filter = "PackedTables|*.pktbls|All files|*.*";
       odMain.Title = "Open Archinve";
       // 
+      // saveDialog
+      // 
+      saveDialog.DefaultExt = "pktbls";
+      saveDialog.Filter = "PackedTables|*.pktbls|All files|*.*";
+      saveDialog.Title = "Save As";
+      // 
       // Form1
       // 
       AutoScaleDimensions = new SizeF(7F, 15F);
@@ -289,6 +388,8 @@
       splitContainer3.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
       splitContainer3.ResumeLayout(false);
+      panel1.ResumeLayout(false);
+      panel1.PerformLayout();
       tvMenu.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)vrMain).EndInit();
       ResumeLayout(false);
@@ -315,5 +416,15 @@
     private ToolStripMenuItem removeColumnToolStripMenuItem;
     private ToolStripMenuItem addRowToolStripMenuItem;
     private ToolStripMenuItem removeRowToolStripMenuItem;
+    private Panel panel1;
+    private TextBox tbColumnName;
+    private Label label2;
+    private ComboBox cbType;
+    private Label label3;
+    private ToolStripSeparator toolStripMenuItem1;
+    private ToolStripSeparator toolStripMenuItem2;
+    private ToolStripMenuItem saveToolStripMenuItem;
+    private ToolStripMenuItem saveAsToolStripMenuItem;
+    private SaveFileDialog saveDialog;
   }
 }

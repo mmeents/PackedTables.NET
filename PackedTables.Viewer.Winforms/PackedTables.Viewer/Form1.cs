@@ -15,6 +15,7 @@ namespace PackedTables.Viewer {
     private string _fileName = "No File Open";
     private PackedTableSet? _workingPack = null;
     private TableModel? _table = null;
+    private ColumnModel? _column = null;
 
     private string OrderByColumnName = "";
     private bool SortAsc = true;
@@ -98,6 +99,9 @@ namespace PackedTables.Viewer {
       treeView1.Nodes.Clear();
       ClearVrMain();
       LogMsg(_fileName + " closed.");
+      _column = null;
+      _table = null;
+      splitContainer3_Panel1_Resize(null, null);
     }
 
 
@@ -158,14 +162,83 @@ namespace PackedTables.Viewer {
 
     private void Form1_Shown(object sender, EventArgs e) {
       LogMsg($"PackedTables.Viewer started {DateTime.Now}");
+      splitContainer3_Panel1_Resize(sender, e);
+    }
+
+    private void splitContainer3_Panel1_Resize(object sender, EventArgs e) {
+      if (_column == null) {
+        panel1.Visible = false;
+        treeView1.Height = splitContainer3.Panel1.Height - 2;
+      } else {
+        panel1.Visible = true;
+        treeView1.Height = splitContainer3.Panel1.Height - panel1.Height - 2;
+      }
     }
 
     private void treeView1_AfterSelect(object sender, TreeViewEventArgs e) {
       var target = e.Node;
+      _column = null;
       if (target == null || target.Tag == null) return;
       if (target.Tag is TableModel table) {
         LogMsg($"Selected table: {table.Name}");
         LoadDataGridViewFromTable(table);
+      } else if (target.Tag is ColumnModel col) {
+        ColumnPanelChanging = true;
+        try {
+          _column = col;
+          LogMsg($"Selected column: {col.ColumnName} in table {col.TableId}");
+          tbColumnName.Text = col.ColumnName;
+          cbType.SelectedIndex = (int)col.ColumnType;
+        } catch (Exception ex) {
+          LogMsg($"Error (AfterSelect column): {ex.Message}");
+        } finally {
+          ColumnPanelChanging = false;
+        }
+        var parentNode = target.Parent;
+        if (parentNode.Tag is TableModel parentTable) {
+          LogMsg($"Parent table: {parentTable.Name}");
+          LoadDataGridViewFromTable(parentTable);
+        } else {
+          LogMsg("Weird...No parent table found for column selection.");
+        }
+
+      }
+      splitContainer3_Panel1_Resize(sender, e);
+    }
+
+    private bool ColumnPanelChanging = false;
+    private void tbColumnName_Leave(object sender, EventArgs e) {
+      if (_column == null || string.IsNullOrEmpty(tbColumnName.Text)) return;
+      if (_column.ColumnName == tbColumnName.Text) return; // no change      
+      _column.ColumnName = tbColumnName.Text;
+      _table.RebuildColumnIndex();
+      if (_table != null) {
+        LoadTreeViewFromWorkingPack();
+        LoadDataGridViewFromTable(_table);
+      } else {
+        LogMsg("Error: _table is null when leaving and modifying.");
+      }
+    }
+
+    private void tbColumnName_KeyPress(object sender, KeyPressEventArgs e) {
+      if (e.KeyChar == '\r') {
+        e.Handled = true; // prevent beep sound on enter key
+        this.SelectNextControl(tbColumnName, true, true, true, true);
+      }
+    }
+
+    private void cbType_SelectedIndexChanged(object sender, EventArgs e) {
+      if (ColumnPanelChanging) return; // prevent recursive calls
+      if (_column == null) return;
+      if (cbType.SelectedIndex < 0 || cbType.SelectedIndex >= Enum.GetValues(typeof(ColumnType)).Length) return;
+      var newType = (ColumnType)cbType.SelectedIndex;
+      if (_column.ColumnType == newType) return; // no change
+      _column.ColumnType = newType;
+      if (_table != null) {
+        LoadTreeViewFromWorkingPack();
+        LoadDataGridViewFromTable(_table);
+      } else {
+        LogMsg("Error: _table is null when changing column type.");
       }
     }
 
@@ -181,7 +254,23 @@ namespace PackedTables.Viewer {
       ClearVrMain();
 
       foreach (var col in _table.Columns.Values.OrderBy(x => x.Rank)) {
-        var addedId = vrMain.Columns.Add(col.ColumnName, col.ColumnName);
+        Type coltype = col.ColumnType switch {
+          ColumnType.Boolean => typeof(bool),
+          ColumnType.Int32 => typeof(int),
+          ColumnType.Int64 => typeof(long),
+          ColumnType.Decimal => typeof(decimal),
+          ColumnType.DateTime => typeof(DateTime),
+          ColumnType.Guid => typeof(Guid),
+          ColumnType.String => typeof(string),
+          ColumnType.Bytes => typeof(byte[]),
+          _ => typeof(string) // Default to string for unknown types
+        };
+        DataGridViewTextBoxColumn dataColumn = new DataGridViewTextBoxColumn {
+          Name = col.ColumnName,
+          HeaderText = col.ColumnName,
+          ValueType = coltype
+        };
+        var addedId = vrMain.Columns.Add(dataColumn);
         if (col.ColumnName == OrderByColumnName) {
           if (SortAsc) {
             vrMain.Columns[addedId].HeaderCell.SortGlyphDirection = SortOrder.Ascending;
@@ -201,13 +290,12 @@ namespace PackedTables.Viewer {
     private void vrMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
       try {
         var columnName = vrMain.Columns[e.ColumnIndex].Name;
-        if (_table.RowIndex.TryGetValue(e.RowIndex, out int RowId)) {
+        var rowNumber = e.RowIndex + 1;  // tables are 1-based in PackedTables
+        if (_table.RowIndex.TryGetValue(rowNumber, out int RowId)) {
           if (_table.Rows.TryGetValue(RowId, out var row)) {
-            e.Value = row?[columnName]?.Value ?? "";
-
+            e.Value = row?[columnName]?.ValueString ?? "";
           } else {
             e.Value = "";
-
           }
         } else {
           e.Value = "";
@@ -220,7 +308,8 @@ namespace PackedTables.Viewer {
     private void vrMain_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
       try {
         var columnName = vrMain.Columns[e.ColumnIndex].Name;
-        if (_table != null && _table.RowIndex.TryGetValue(e.RowIndex, out var tblIndex) && tblIndex != 0) {
+        var rowNumber = e.RowIndex + 1;  // tables are 1-based in PackedTables
+        if (_table != null && _table.RowIndex.TryGetValue(rowNumber, out var tblIndex) && tblIndex != 0) {
           if (_table.Rows.TryGetValue(tblIndex, out var row)) {
             if (row != null) {
               row[columnName].Value = e.Value ?? "";
@@ -256,6 +345,7 @@ namespace PackedTables.Viewer {
         removeTableToolStripMenuItem.Visible = false;
         removeColumnToolStripMenuItem.Visible = false;
         removeRowToolStripMenuItem.Visible = false;
+        saveToolStripMenuItem.Visible = true;
       }
       if (target.Tag is TableModel table) {
         addTableToolStripMenuItem.Visible = true;
@@ -264,6 +354,7 @@ namespace PackedTables.Viewer {
         removeTableToolStripMenuItem.Visible = true;
         removeColumnToolStripMenuItem.Visible = false;
         removeRowToolStripMenuItem.Visible = false;
+        saveToolStripMenuItem.Visible = true;
       }
       if (target.Tag is ColumnModel column) {
         addTableToolStripMenuItem.Visible = false;
@@ -272,16 +363,92 @@ namespace PackedTables.Viewer {
         removeTableToolStripMenuItem.Visible = true;
         removeColumnToolStripMenuItem.Visible = true;
         removeRowToolStripMenuItem.Visible = false;
+        saveToolStripMenuItem.Visible = true;
       }
 
     }
 
     private void addTableToolStripMenuItem_Click(object sender, EventArgs e) {
       if (_workingPack == null) return;
-      string newTableName = $"Table{_workingPack.TableCount+1}";
+      string newTableName = $"Table{_workingPack.TableCount + 1}";
       var newTable = _workingPack.AddTable(newTableName);
       newTable.AddColumn("Id", ColumnType.Int32);
       LoadTreeViewFromWorkingPack();
+    }
+    private void removeTableToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
+      if (treeView1.SelectedNode.Tag is TableModel table) {
+        var result = MessageBox.Show($"Are you sure you want to remove the table '{table.Name}'?", "Confirm Remove", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+        if (result == DialogResult.Yes) {
+          _workingPack.RemoveTable(table.Name);
+          LoadTreeViewFromWorkingPack();
+          ClearVrMain();
+        }
+      }
+    }
+
+    private void addColumnToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
+      if (treeView1.SelectedNode.Tag is TableModel table) {
+        string newColumnName = $"Column{table.Columns.Count + 1}";
+        var newColumn = table.AddColumn(newColumnName, ColumnType.String);
+        LoadTreeViewFromWorkingPack();
+        LoadDataGridViewFromTable(table);
+      } else if (treeView1.SelectedNode.Tag is ColumnModel column) {
+        var parentNode = treeView1.SelectedNode.Parent;
+        if (parentNode.Tag is TableModel table2) {
+          string newColumnName = $"Column{table2.Columns.Count + 1}";
+          var newColumn = table2.AddColumn(newColumnName, ColumnType.String);
+          LoadTreeViewFromWorkingPack();
+          LoadDataGridViewFromTable(table2);
+        }
+      }
+    }
+    private void removeColumnToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
+      if (treeView1.SelectedNode.Tag is ColumnModel column) {
+        var parentNode = treeView1.SelectedNode.Parent;
+        if (parentNode.Tag is TableModel table) {
+          var result = MessageBox.Show($"Are you sure you want to remove the column '{column.ColumnName}' from table '{table.Name}'?", "Confirm Remove", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+          if (result == DialogResult.Yes) {
+            table.RemoveColumn(column.Id);
+            LoadTreeViewFromWorkingPack();
+            LoadDataGridViewFromTable(table);
+          }
+        }
+      }
+
+    }
+
+
+    private void addRowToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
+      if (treeView1.SelectedNode.Tag is TableModel table) {
+        var newRow = table.AddRow();
+        LoadTreeViewFromWorkingPack();
+        LoadDataGridViewFromTable(table);
+      }
+    }
+
+    private void removeRowToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
+      // depends on the selected row of the grid not so much the treeview.
+    }
+
+    private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
+      _workingPack?.SaveToFile(_fileName);
+    }
+
+    private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) {
+      if (_workingPack == null) return;
+      if (saveDialog.ShowDialog() == DialogResult.OK) {
+          _fileName = saveDialog.FileName;
+          _workingPack.SaveToFile(_fileName);
+          AddFileToMRUL(_fileName);
+          ReloadComboBox();
+          label1.Text = $"Open: {_fileName}";
+          this.Text = "Viewing " + _fileName;
+      }
     }
   }
 }

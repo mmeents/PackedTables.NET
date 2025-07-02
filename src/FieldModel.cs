@@ -36,6 +36,12 @@ namespace PackedTables.Net {
           //         OwnerFields.NotifyValueChanged(this.RowId);
           //       }
         } else {
+          if (this.ValueType == ColumnType.Int32) { 
+            if (int.TryParse( Value.AsString(), out int intValue)) {
+              value = intValue;
+              return;
+            } 
+          }
           throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
         }
 

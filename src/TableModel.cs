@@ -69,6 +69,16 @@ namespace PackedTables.Net
       };
       this.Columns[column.Id] = column;
       this._columnNameToIdIndex[column.ColumnName] = column.Id;
+      foreach (RowModel row in this.Rows.Values) {
+        var field = new FieldModel() {
+          OwnerRow = row,
+          Id = column.Id,
+          RowId = row.Id,
+          ColumnId = column.Id,
+          ValueType = columnType
+        };
+        row.RowFields[field.Id] = field;
+      }
       return column;
     }
 
@@ -137,7 +147,7 @@ namespace PackedTables.Net
           listRows = Rows.Select(x => x.Value).OrderByDescending(x => x[OrderByColumnName].Value);
         }        
       }
-      int index = 0;
+      int index = 1;
       foreach (var row in listRows) {
         RowIndex[index] = row.Id;
         index++;        

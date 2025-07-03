@@ -182,13 +182,22 @@ namespace PackedTables.Viewer {
     }
 
     private void splitContainer3_Panel1_Resize(object sender, EventArgs e) {
-      if (_column == null) {
+      if (treeView1.SelectedNode != null) { 
+        var target = treeView1.SelectedNode;
+        if (target.Tag is TableModel table) {
+          panel1.Visible = true;
+          treeView1.Height = splitContainer3.Panel1.Height - panel1.Height - 2;
+        } else if (target.Tag is ColumnModel column) {
+          panel1.Visible = true;
+          treeView1.Height = splitContainer3.Panel1.Height - panel1.Height - 2;
+        } else {
+          panel1.Visible = false;
+          treeView1.Height = splitContainer3.Panel1.Height - 2;
+        }
+      } else {
         panel1.Visible = false;
         treeView1.Height = splitContainer3.Panel1.Height - 2;
-      } else {
-        panel1.Visible = true;
-        treeView1.Height = splitContainer3.Panel1.Height - panel1.Height - 2;
-      }
+      }      
     }
 
     private void treeView1_AfterSelect(object sender, TreeViewEventArgs e) {
@@ -196,6 +205,16 @@ namespace PackedTables.Viewer {
       _column = null;
       if (target == null || target.Tag == null) return;
       if (target.Tag is TableModel table) {
+        _table = table;
+        ColumnPanelChanging = true; 
+        try { 
+          tbColumnName.Text = table.Name;
+          cbType.Visible = false;
+          label2.Text = "Table:";
+          label3.Visible = false;
+        } finally { 
+          ColumnPanelChanging = false;
+        }
         LogMsg($"Selected table: {table.Name}");
         LoadDataGridViewFromTable(table);
       } else if (target.Tag is ColumnModel col) {
@@ -204,6 +223,9 @@ namespace PackedTables.Viewer {
           _column = col;
           LogMsg($"Selected column: {col.ColumnName} in table {col.TableId}");
           tbColumnName.Text = col.ColumnName;
+          label2.Text = "Column:";
+          cbType.Visible = true;
+          label3.Visible = true;
           cbType.SelectedIndex = (int)col.ColumnType;
         } catch (Exception ex) {
           LogMsg($"Error (AfterSelect column): {ex.Message}");
@@ -224,10 +246,17 @@ namespace PackedTables.Viewer {
 
     private bool ColumnPanelChanging = false;
     private void tbColumnName_Leave(object sender, EventArgs e) {
-      if (_column == null || string.IsNullOrEmpty(tbColumnName.Text)) return;
-      if (_column.ColumnName == tbColumnName.Text) return; // no change      
-      _column.ColumnName = tbColumnName.Text;
-      _table.RebuildColumnIndex();
+      if (_table == null || string.IsNullOrEmpty(tbColumnName.Text)) return;
+      if (_column == null) {
+        if (_table.Name == tbColumnName.Text) return; // no change
+        _table.Name = tbColumnName.Text; // changing table name
+        _workingPack?.RebuildTableNameIndex();
+      } else {
+        if (_column.ColumnName == tbColumnName.Text) return; // no change      
+        _column.ColumnName = tbColumnName.Text;
+        _table.RebuildColumnIndex();
+       
+      }
       if (_table != null) {
         LoadTreeViewFromWorkingPack();
         LoadDataGridViewFromTable(_table);

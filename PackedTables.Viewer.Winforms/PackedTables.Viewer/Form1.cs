@@ -92,6 +92,22 @@ namespace PackedTables.Viewer {
     }
 
     private void DoCloseFileTable() {
+
+      if (_workingPack != null && _workingPack!.Modified) { 
+        if (MessageBox.Show("You have unsaved changes. Do you want to save before closing?", "Unsaved Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+          if (_fileName.Length > 0) {
+            _workingPack.SaveToFile(_fileName);
+            AddFileToMRUL(_fileName);
+          } else {
+            if (saveDialog.ShowDialog() == DialogResult.OK) {
+              _fileName = saveDialog.FileName;
+              _workingPack.SaveToFile(_fileName);
+              AddFileToMRUL(_fileName);
+            }
+          }
+        }
+      }
+
       btnOpenClose.Text = "Open";
       btnBrowse.Visible = true;
       comboBox1.Visible = true;
@@ -101,6 +117,7 @@ namespace PackedTables.Viewer {
       LogMsg(_fileName + " closed.");
       _column = null;
       _table = null;
+      _workingPack = null;
       splitContainer3_Panel1_Resize(null, null);
     }
 
@@ -109,8 +126,7 @@ namespace PackedTables.Viewer {
       if (btnOpenClose.Text == "Open") {
         _fileName = comboBox1.SelectedItem?.ToString();
         DoOpenFileTable();
-      } else if (btnOpenClose.Text == "Close") {
-        _workingPack = null;
+      } else if (btnOpenClose.Text == "Close") {        
         DoCloseFileTable();
       }
     }
@@ -329,6 +345,7 @@ namespace PackedTables.Viewer {
       } else {
         OrderByColumnName = columnName;
       }
+      _table.RebuildRowIndex();
       LoadDataGridViewFromTable(_table!);
     }
 

@@ -43,7 +43,8 @@ namespace PackedTables.Net {
             } 
           }
           throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
-        }
+        }        
+        this.OwnerRow!.Owner!.Owner!.Modified = true;       
 
       }
     }

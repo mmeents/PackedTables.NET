@@ -95,7 +95,7 @@ namespace PackedTables.Viewer {
 
       if (_workingPack != null && _workingPack!.Modified) { 
         if (MessageBox.Show("You have unsaved changes. Do you want to save before closing?", "Unsaved Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-          if (_fileName.Length > 0) {
+          if (!string.IsNullOrEmpty(_fileName)) {
             _workingPack.SaveToFile(_fileName);
             AddFileToMRUL(_fileName);
           } else {

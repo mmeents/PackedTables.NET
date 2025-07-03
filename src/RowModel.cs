@@ -58,12 +58,16 @@ namespace PackedTables.Net {
         if (value != null) {
           if (value.ColumnId != columnId) throw new Exception("ColumnId mismatch");
           RowFields[value.Id] = value;
-          this.Owner.Owner!.Modified = true;
+          if (this.Owner != null && this.Owner.Owner != null) {
+            this.Owner.Owner!.Modified = true;
+          }
         } else {
           var field = RowFields?.FirstOrDefault(x => x.Value.ColumnId == columnId);
           if (field != null) {
             RowFields!.Remove(field.Value.Value.Id, out var field1);
-            this.Owner.Owner!.Modified = true;
+            if (this.Owner != null && this.Owner.Owner != null) {
+              this.Owner.Owner!.Modified = true;
+            }
           }
         }
       }

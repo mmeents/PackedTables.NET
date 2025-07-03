@@ -4,11 +4,11 @@ namespace PackedTables.Net
 {
   // 
   public class PackedTableSet {
-    private string _FileName { get; set; } = "";
-    private bool _Modified { get; set; } = false;
+    private string _fileName { get; set; } = "";
+    private bool _modified { get; set; } = false;
     public bool Modified {
-      get { return _Modified; }
-      set { _Modified = value; }
+      get { return _modified; }
+      set { _modified = value; }
     }
     private DataSetModel _Package { get; set; } = new DataSetModel();
 
@@ -37,7 +37,7 @@ namespace PackedTables.Net
           ResetOwnership();
         }
       }
-      _Modified = false;
+      _modified = false;
     }
 
     private void ResetOwnership() {
@@ -54,8 +54,8 @@ namespace PackedTables.Net
 
     public void LoadFromFile(string fileName) {
       if (File.Exists(fileName)) {
-        _FileName = fileName;
-        _Modified = false;
+        _fileName = fileName;
+        _modified = false;
         var encoded = Task.Run(async () => await fileName.ReadAllTextAsync().ConfigureAwait(false)).GetAwaiter().GetResult();
         LoadFromBase64String(encoded);
       }
@@ -64,7 +64,7 @@ namespace PackedTables.Net
     public void SaveToFile(string fileName) {
       var base64 = SaveToBase64String();
       Task.Run(async () => await base64.WriteAllTextAsync(fileName).ConfigureAwait(false)).GetAwaiter().GetResult();
-      _Modified = false;
+      _modified = false;
     }
 
     public string SaveToJson() {
@@ -81,7 +81,7 @@ namespace PackedTables.Net
           ResetOwnership();
         }
       }
-      _Modified = false;
+      _modified = false;
     }
     #endregion
 
@@ -115,7 +115,7 @@ namespace PackedTables.Net
       };
       _Package.Tables[tableNew.Id] = tableNew;
       _Package.NameIndex[tableName] = tableNew.Id;
-      _Modified = true;
+      _modified = true;
       return tableNew;
     }
 
@@ -137,7 +137,7 @@ namespace PackedTables.Net
       if (table != null) {
         _Package.Tables.TryRemove(table.Id, out _);
         _Package.NameIndex.TryRemove(tableName, out _);
-        _Modified = true;
+        _modified = true;
       } else {
         throw new Exception($"Table {tableName} does not exist.");
       }

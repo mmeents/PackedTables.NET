@@ -147,5 +147,14 @@ namespace PackedTables.Net
       return _Package.Tables.Values;
     }
 
+    public void RebuildTableNameIndex() {
+      _Package.NameIndex.Clear();
+      foreach (var table in _Package.Tables.Values) {
+        if (!string.IsNullOrEmpty(table.Name)) {
+          _Package.NameIndex[table.Name] = table.Id;
+        }
+      }
+    }
+
   }
 }

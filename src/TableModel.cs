@@ -79,6 +79,9 @@ namespace PackedTables.Net
         };
         row.RowFields[field.Id] = field;
       }
+      if (this.Owner != null ) {
+        this.Owner.Modified = true;
+      }      
       return column;
     }
 
@@ -94,6 +97,9 @@ namespace PackedTables.Net
         _ = this._columnOrderByRankToIdIndex.TryRemove(column.Rank, out _);
         this.Columns.Remove(columnId, out var columnM);
         this.RebuildColumnIndex();
+        if (this.Owner != null) {
+          this.Owner.Modified = true;
+        }
       }
     }
 
@@ -187,6 +193,9 @@ namespace PackedTables.Net
         }
       }
       Current = newRow;
+      if (this.Owner != null) {
+        this.Owner.Modified = true;
+      }
       return newRow;      
     }
     public void RemoveRow(RowModel row) {     
@@ -194,6 +203,9 @@ namespace PackedTables.Net
       if (Rows.ContainsKey(row.Id)) {
         _ = Rows.TryRemove(row.Id, out _);
         RebuildRowIndex();
+        if (this.Owner != null) {
+          this.Owner.Modified = true;
+        }
       }     
     }
 

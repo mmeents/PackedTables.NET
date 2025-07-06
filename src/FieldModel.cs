@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace PackedTables.Net {
-  [MessagePackObject]
+  [MessagePackObject(AllowPrivate = true)]
   public class FieldModel {
 
     [IgnoreMember]
@@ -24,25 +24,27 @@ namespace PackedTables.Net {
     [Key(4)]
     public ColumnType ValueType { get; set; } = ColumnType.Null;
 
+    [IgnoreMember] 
+    private object? _nativeValue;
+
     [IgnoreMember]
     public Object Value {
       get {
-        return this.AsObject();
+        return _nativeValue ?? this.AsObject();
       }
       set {
         if (this.ValueType == FieldExt.GetColumnType(value)) {
+          _nativeValue = value;
           this.ValueString = this.GetColumnValueToString(value);
-          //       if (OwnerFields != null) {
-          //         OwnerFields.NotifyValueChanged(this.RowId);
-          //       }
         } else {
           if (this.ValueType == ColumnType.Int32) { 
             if (int.TryParse( Value.AsString(), out int intValue)) {
-              value = intValue;
+              _nativeValue = intValue;
+              this.ValueString = FieldExt.GetValueString(intValue);
               return;
             } 
           }
-          throw new Exception($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
+          throw new ArgumentException($"FieldModel:Column ValueType {this.ValueType} does not match new data type {FieldExt.GetColumnType(value)}");
         }      
         if (this.OwnerRow != null && this.OwnerRow.Owner != null && this.OwnerRow.Owner.Owner != null) {
           this.OwnerRow.Owner.Owner.Modified = true;

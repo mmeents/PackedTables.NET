@@ -60,6 +60,16 @@ namespace PackedTables.Net
     }
 
     public ColumnModel AddColumn(string columnName, ColumnType columnType) {
+      if (string.IsNullOrEmpty(columnName)) {
+        throw new ArgumentException("Column name cannot be null or empty.");
+      }
+      if (string.Compare(columnName, "Id", true) == 0) {
+        throw new ArgumentException("Column name 'Id' is reserved and cannot be used.");
+      }
+      if (Columns.ContainsKey(GetColumnID(columnName) ?? -1)) {
+        throw new ArgumentException($"Column with name '{columnName}' already exists.");
+      }
+
       var column = new ColumnModel() {
         Id = GetNextNewColumnId(),
         TableId = this.Id,
@@ -107,6 +117,9 @@ namespace PackedTables.Net
     public int? GetColumnID(string columnName) {
       if (Columns == null || Columns.IsEmpty) return null;
       if (string.IsNullOrEmpty(columnName)) return null;
+      if (string.Compare(columnName, "Id", true) == 0) {
+            return 0; // Id is always column 0
+      }
       if (_columnNameToIdIndex.TryGetValue(columnName, out var columnId)) {
             return columnId;
       }      

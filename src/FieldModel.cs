@@ -32,9 +32,6 @@ namespace PackedTables.Net {
       set {
         if (this.ValueType == FieldExt.GetColumnType(value)) {
           this.ValueString = this.GetColumnValueToString(value);
-          //       if (OwnerFields != null) {
-          //         OwnerFields.NotifyValueChanged(this.RowId);
-          //       }
         } else {
           if (this.ValueType == ColumnType.Int32) { 
             if (int.TryParse( Value.AsString(), out int intValue)) {

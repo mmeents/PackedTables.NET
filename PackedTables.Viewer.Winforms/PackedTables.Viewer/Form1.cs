@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using PackedTables;
 using PackedTables.Net;
 using PackedTables.Viewer.Extensions;
@@ -23,6 +24,7 @@ namespace PackedTables.Viewer {
       InitializeComponent();
       _settingsPack = new SettingsModel(ConstExt.SettingsFileName);
       ReloadComboBox();
+      this.Text = "PackedTables.NET Viewer";
     }
 
     delegate void SetLogMsgCallback(string msg);
@@ -93,7 +95,7 @@ namespace PackedTables.Viewer {
 
     private void DoCloseFileTable() {
 
-      if (_workingPack != null && _workingPack!.Modified) { 
+      if (_workingPack != null && _workingPack!.Modified) {
         if (MessageBox.Show("You have unsaved changes. Do you want to save before closing?", "Unsaved Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
           if (!string.IsNullOrEmpty(_fileName)) {
             _workingPack.SaveToFile(_fileName);
@@ -126,7 +128,7 @@ namespace PackedTables.Viewer {
       if (btnOpenClose.Text == "Open") {
         _fileName = comboBox1.SelectedItem?.ToString();
         DoOpenFileTable();
-      } else if (btnOpenClose.Text == "Close") {        
+      } else if (btnOpenClose.Text == "Close") {
         DoCloseFileTable();
       }
     }
@@ -179,10 +181,11 @@ namespace PackedTables.Viewer {
     private void Form1_Shown(object sender, EventArgs e) {
       LogMsg($"PackedTables.Viewer started {DateTime.Now}");
       splitContainer3_Panel1_Resize(sender, e);
+      splitContainer3_Panel2_Resize(sender, e);
     }
 
     private void splitContainer3_Panel1_Resize(object sender, EventArgs e) {
-      if (treeView1.SelectedNode != null) { 
+      if (treeView1.SelectedNode != null) {
         var target = treeView1.SelectedNode;
         if (target.Tag is TableModel table) {
           panel1.Visible = true;
@@ -197,22 +200,24 @@ namespace PackedTables.Viewer {
       } else {
         panel1.Visible = false;
         treeView1.Height = splitContainer3.Panel1.Height - 2;
-      }      
+      }
     }
 
     private void treeView1_AfterSelect(object sender, TreeViewEventArgs e) {
       var target = e.Node;
+      toolStripButton1.Enabled = false;
       _column = null;
       if (target == null || target.Tag == null) return;
       if (target.Tag is TableModel table) {
         _table = table;
-        ColumnPanelChanging = true; 
-        try { 
+        toolStripButton1.Enabled = true;
+        ColumnPanelChanging = true;
+        try {
           tbColumnName.Text = table.Name;
           cbType.Visible = false;
           label2.Text = "Table:";
           label3.Visible = false;
-        } finally { 
+        } finally {
           ColumnPanelChanging = false;
         }
         LogMsg($"Selected table: {table.Name}");
@@ -232,13 +237,16 @@ namespace PackedTables.Viewer {
         } finally {
           ColumnPanelChanging = false;
         }
+
         var parentNode = target.Parent;
         if (parentNode.Tag is TableModel parentTable) {
           LogMsg($"Parent table: {parentTable.Name}");
           LoadDataGridViewFromTable(parentTable);
+          toolStripButton1.Enabled = true;
         } else {
           LogMsg("Weird...No parent table found for column selection.");
         }
+
 
       }
       splitContainer3_Panel1_Resize(sender, e);
@@ -255,7 +263,7 @@ namespace PackedTables.Viewer {
         if (_column.ColumnName == tbColumnName.Text) return; // no change      
         _column.ColumnName = tbColumnName.Text;
         _table.RebuildColumnIndex();
-       
+
       }
       if (_table != null) {
         LoadTreeViewFromWorkingPack();
@@ -288,6 +296,8 @@ namespace PackedTables.Viewer {
     }
 
     private void ClearVrMain() {
+      toolStripButton1.Enabled = false;
+      toolStripButton2.Enabled = false;
       if (vrMain.Rows.Count > 0) { vrMain.Rows.Clear(); }
       if (vrMain.Columns.Count > 0) { vrMain.Columns.Clear(); }
     }
@@ -295,8 +305,16 @@ namespace PackedTables.Viewer {
     private void LoadDataGridViewFromTable(TableModel table) {
       if (table == null) return;
       _table = table;
+      vrMain.SuspendLayout();
       if (vrMain.Enabled) vrMain.Enabled = false;
       ClearVrMain();
+
+      DataGridViewTextBoxColumn IdColumn = new DataGridViewTextBoxColumn {
+        Name = "Id",
+        HeaderText = "Id",
+        ValueType = typeof(int),
+      };
+      var IdAddedId = vrMain.Columns.Add(IdColumn);
 
       foreach (var col in _table.Columns.Values.OrderBy(x => x.Rank)) {
         Type coltype = col.ColumnType switch {
@@ -328,6 +346,7 @@ namespace PackedTables.Viewer {
       }
       vrMain.RowCount = _table.Rows.Count;
       _table.OrderByColumnName = OrderByColumnName;
+      vrMain.ResumeLayout(false);
       vrMain.Enabled = true;
       if (!vrMain.Visible) { vrMain.Visible = true; }
     }
@@ -335,8 +354,12 @@ namespace PackedTables.Viewer {
     private void vrMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
       try {
         var columnName = vrMain.Columns[e.ColumnIndex].Name;
+        if (_table != null && _table.GetColumnID(columnName) == null) {
+          e.Value = ""; // column not found in table
+          return;
+        }
         var rowNumber = e.RowIndex + 1;  // tables are 1-based in PackedTables
-        if (_table.RowIndex.TryGetValue(rowNumber, out int RowId)) {
+        if (_table != null && _table.RowIndex.TryGetValue(rowNumber, out int RowId)) {
           if (_table.Rows.TryGetValue(RowId, out var row)) {
             e.Value = row?[columnName]?.ValueString ?? "";
           } else {
@@ -346,7 +369,7 @@ namespace PackedTables.Viewer {
           e.Value = "";
         }
       } catch (Exception ex) {
-        LogMsg(ex.Message);
+        LogMsg("Error: CellValueNeeded " + ex.Message);
       }
     }
 
@@ -370,11 +393,13 @@ namespace PackedTables.Viewer {
       var columnName = vrMain.Columns[e.ColumnIndex].Name;
       if (columnName == OrderByColumnName) {
         SortAsc = !SortAsc;
+        _table!.SortAsc = SortAsc;
         var col = vrMain.Columns[e.ColumnIndex];
       } else {
+        _table!.OrderByColumnName = columnName;
         OrderByColumnName = columnName;
       }
-      _table.RebuildRowIndex();
+      _table?.RebuildRowIndex();
       LoadDataGridViewFromTable(_table!);
     }
 
@@ -488,12 +513,25 @@ namespace PackedTables.Viewer {
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) {
       if (_workingPack == null) return;
       if (saveDialog.ShowDialog() == DialogResult.OK) {
-          _fileName = saveDialog.FileName;
-          _workingPack.SaveToFile(_fileName);
-          AddFileToMRUL(_fileName);
-          ReloadComboBox();
-          label1.Text = $"Open: {_fileName}";
-          this.Text = "Viewing " + _fileName;
+        _fileName = saveDialog.FileName;
+        _workingPack.SaveToFile(_fileName);
+        AddFileToMRUL(_fileName);
+        ReloadComboBox();
+        label1.Text = $"Open: {_fileName}";
+        this.Text = "Viewing " + _fileName;
+      }
+    }
+
+    private void splitContainer3_Panel2_Resize(object sender, EventArgs e) {
+      vrMain.Height = splitContainer3.Panel2.Height - toolStrip1.Height - 2;
+    }
+
+    private void vrMain_SelectionChanged(object sender, EventArgs e) {
+      var selectedRows = vrMain.SelectedRows;
+      if (selectedRows.Count > 0) { 
+        toolStripButton2.Enabled = false;
+      } else { 
+        toolStripButton2.Enabled = true;
       }
     }
   }

@@ -10,7 +10,7 @@ namespace PackedTables.Net {
 
   [MessagePackObject]
   public class RowModel {
-
+    [IgnoreMember]
     private TableModel? _owner = null;
 
     [Key(0)]
@@ -21,6 +21,26 @@ namespace PackedTables.Net {
 
     [Key(2)]
     public ConcurrentDictionary<int, FieldModel> RowFields { get; set; } = new();
+
+    [IgnoreMember]
+    private FieldModel? _rowId = null;
+
+    [IgnoreMember]
+    public FieldModel RowId { 
+      get{
+        if (_rowId == null) {
+          _rowId = new FieldModel() {
+            Id = 0,
+            RowId = this.Id,
+            ColumnId = 0, // This is a special case, RowId does not have a column
+            OwnerRow = this,
+            ValueType = ColumnType.Int32,
+            ValueString = this.Id.AsString()
+          };          
+        }
+        return _rowId;
+      } 
+    }
 
     public RowModel() {
       Owner = null;
@@ -45,8 +65,11 @@ namespace PackedTables.Net {
     [IgnoreMember]
     public FieldModel this[string columnName] {
       get {
-        if (Owner == null || string.IsNullOrEmpty(columnName)) throw new Exception("Owner is null or bad column name");
-        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception("Column not found");         
+        if (Owner == null || string.IsNullOrEmpty(columnName)) throw new Exception($"Owner is null or bad column {columnName}");
+        if (string.Compare(columnName, "Id", true)==0) {
+          return RowId;
+        }
+        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception($"Get Column not found {columnName}");         
         var fieldExists = RowFields.Any(x => x.Value.ColumnId == columnId);
         if (!fieldExists) throw new Exception("Rowfield not found");
         var field = RowFields.First(x => x.Value.ColumnId == columnId);
@@ -54,7 +77,7 @@ namespace PackedTables.Net {
       }
       set {
         if (Owner == null || columnName == null || columnName.Length == 0) throw new Exception("Owner is null or bad column name ");
-        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception("Column not found");
+        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception($"Set column {columnName} not found");
         if (value != null) {
           if (value.ColumnId != columnId) throw new Exception("ColumnId mismatch");
           RowFields[value.Id] = value;

@@ -50,6 +50,9 @@
       toolStripMenuItem2 = new ToolStripSeparator();
       saveToolStripMenuItem = new ToolStripMenuItem();
       saveAsToolStripMenuItem = new ToolStripMenuItem();
+      toolStrip1 = new ToolStrip();
+      toolStripButton1 = new ToolStripButton();
+      toolStripButton2 = new ToolStripButton();
       vrMain = new DataGridView();
       textBox1 = new TextBox();
       odMain = new OpenFileDialog();
@@ -68,6 +71,7 @@
       splitContainer3.SuspendLayout();
       panel1.SuspendLayout();
       tvMenu.SuspendLayout();
+      toolStrip1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)vrMain).BeginInit();
       SuspendLayout();
       // 
@@ -185,9 +189,11 @@
       // 
       // splitContainer3.Panel2
       // 
+      splitContainer3.Panel2.Controls.Add(toolStrip1);
       splitContainer3.Panel2.Controls.Add(vrMain);
+      splitContainer3.Panel2.Resize += splitContainer3_Panel2_Resize;
       splitContainer3.Size = new Size(560, 265);
-      splitContainer3.SplitterDistance = 249;
+      splitContainer3.SplitterDistance = 277;
       splitContainer3.TabIndex = 0;
       // 
       // panel1
@@ -199,7 +205,7 @@
       panel1.Dock = DockStyle.Bottom;
       panel1.Location = new Point(0, 207);
       panel1.Name = "panel1";
-      panel1.Size = new Size(249, 58);
+      panel1.Size = new Size(277, 58);
       panel1.TabIndex = 2;
       // 
       // label3
@@ -227,7 +233,7 @@
       cbType.Items.AddRange(new object[] { "Unknown", "Null", "Boolean", "Int32", "Int64", "Decimal", "DateTime", "Guid", "String" });
       cbType.Location = new Point(63, 33);
       cbType.Name = "cbType";
-      cbType.Size = new Size(177, 23);
+      cbType.Size = new Size(205, 23);
       cbType.TabIndex = 1;
       cbType.SelectedIndexChanged += cbType_SelectedIndexChanged;
       // 
@@ -236,7 +242,7 @@
       tbColumnName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
       tbColumnName.Location = new Point(63, 7);
       tbColumnName.Name = "tbColumnName";
-      tbColumnName.Size = new Size(177, 23);
+      tbColumnName.Size = new Size(205, 23);
       tbColumnName.TabIndex = 0;
       tbColumnName.KeyPress += tbColumnName_KeyPress;
       tbColumnName.Leave += tbColumnName_Leave;
@@ -250,7 +256,7 @@
       treeView1.Location = new Point(0, 0);
       treeView1.Name = "treeView1";
       treeView1.SelectedImageIndex = 0;
-      treeView1.Size = new Size(249, 201);
+      treeView1.Size = new Size(277, 201);
       treeView1.TabIndex = 0;
       treeView1.AfterSelect += treeView1_AfterSelect;
       // 
@@ -327,21 +333,52 @@
       saveAsToolStripMenuItem.Text = "Save As";
       saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
       // 
+      // toolStrip1
+      // 
+      toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2 });
+      toolStrip1.LayoutStyle = ToolStripLayoutStyle.Flow;
+      toolStrip1.Location = new Point(0, 0);
+      toolStrip1.Margin = new Padding(4, 0, 0, 0);
+      toolStrip1.Name = "toolStrip1";
+      toolStrip1.Padding = new Padding(4, 0, 1, 0);
+      toolStrip1.Size = new Size(279, 23);
+      toolStrip1.TabIndex = 2;
+      toolStrip1.Text = "toolStrip1";
+      // 
+      // toolStripButton1
+      // 
+      toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Image;
+      toolStripButton1.Image = (Image)resources.GetObject("toolStripButton1.Image");
+      toolStripButton1.ImageTransparentColor = Color.Magenta;
+      toolStripButton1.Name = "toolStripButton1";
+      toolStripButton1.Size = new Size(23, 20);
+      toolStripButton1.Text = "Add Row";
+      // 
+      // toolStripButton2
+      // 
+      toolStripButton2.DisplayStyle = ToolStripItemDisplayStyle.Image;
+      toolStripButton2.Image = (Image)resources.GetObject("toolStripButton2.Image");
+      toolStripButton2.ImageTransparentColor = Color.Magenta;
+      toolStripButton2.Name = "toolStripButton2";
+      toolStripButton2.Size = new Size(23, 20);
+      toolStripButton2.Text = "Remove Selected Row";
+      // 
       // vrMain
       // 
       vrMain.AllowUserToAddRows = false;
       vrMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
       vrMain.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
       vrMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      vrMain.Dock = DockStyle.Fill;
-      vrMain.Location = new Point(0, 0);
+      vrMain.Dock = DockStyle.Bottom;
+      vrMain.Location = new Point(0, 56);
       vrMain.Name = "vrMain";
-      vrMain.Size = new Size(307, 265);
+      vrMain.Size = new Size(279, 209);
       vrMain.TabIndex = 0;
       vrMain.VirtualMode = true;
       vrMain.CellValueNeeded += vrMain_CellValueNeeded;
       vrMain.CellValuePushed += vrMain_CellValuePushed;
       vrMain.ColumnHeaderMouseClick += vrMain_ColumnHeaderMouseClick;
+      vrMain.SelectionChanged += vrMain_SelectionChanged;
       // 
       // textBox1
       // 
@@ -371,6 +408,7 @@
       AutoScaleMode = AutoScaleMode.Font;
       ClientSize = new Size(560, 410);
       Controls.Add(splitContainer1);
+      Icon = (Icon)resources.GetObject("$this.Icon");
       Name = "Form1";
       Text = "Form1";
       Shown += Form1_Shown;
@@ -386,11 +424,14 @@
       splitContainer2.ResumeLayout(false);
       splitContainer3.Panel1.ResumeLayout(false);
       splitContainer3.Panel2.ResumeLayout(false);
+      splitContainer3.Panel2.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
       splitContainer3.ResumeLayout(false);
       panel1.ResumeLayout(false);
       panel1.PerformLayout();
       tvMenu.ResumeLayout(false);
+      toolStrip1.ResumeLayout(false);
+      toolStrip1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)vrMain).EndInit();
       ResumeLayout(false);
     }
@@ -426,5 +467,8 @@
     private ToolStripMenuItem saveToolStripMenuItem;
     private ToolStripMenuItem saveAsToolStripMenuItem;
     private SaveFileDialog saveDialog;
+    private ToolStrip toolStrip1;
+    private ToolStripButton toolStripButton1;
+    private ToolStripButton toolStripButton2;
   }
 }

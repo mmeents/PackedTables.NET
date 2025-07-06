@@ -65,21 +65,21 @@ namespace PackedTables.Net {
     [IgnoreMember]
     public FieldModel this[string columnName] {
       get {
-        if (Owner == null || string.IsNullOrEmpty(columnName)) throw new Exception($"Owner is null or bad column {columnName}");
+        if (Owner == null || string.IsNullOrEmpty(columnName)) throw new ArgumentException($"Owner is null or bad column {columnName}");
         if (string.Compare(columnName, "Id", true)==0) {
           return RowId;
         }
-        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception($"Get Column not found {columnName}");         
+        var columnId = Owner!.GetColumnID(columnName) ?? throw new ArgumentException($"Get Column not found {columnName}");         
         var fieldExists = RowFields.Any(x => x.Value.ColumnId == columnId);
-        if (!fieldExists) throw new Exception("Rowfield not found");
+        if (!fieldExists) throw new ArgumentException("Rowfield not found");
         var field = RowFields.First(x => x.Value.ColumnId == columnId);
         return field.Value;
       }
       set {
-        if (Owner == null || columnName == null || columnName.Length == 0) throw new Exception("Owner is null or bad column name ");
-        var columnId = Owner!.GetColumnID(columnName) ?? throw new Exception($"Set column {columnName} not found");
+        if (Owner == null || columnName == null || columnName.Length == 0) throw new ArgumentException("Owner is null or bad column name ");
+        var columnId = Owner!.GetColumnID(columnName) ?? throw new ArgumentException($"Set column {columnName} not found");
         if (value != null) {
-          if (value.ColumnId != columnId) throw new Exception("ColumnId mismatch");
+          if (value.ColumnId != columnId) throw new ArgumentException("ColumnId mismatch");
           RowFields[value.Id] = value;
           if (this.Owner != null && this.Owner.Owner != null) {
             this.Owner.Owner!.Modified = true;

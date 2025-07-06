@@ -64,10 +64,10 @@ namespace PackedTables.Net
         throw new ArgumentException("Column name cannot be null or empty.");
       }
       if (string.Compare(columnName, "Id", true) == 0) {
-        throw new Exception("Column name 'Id' is reserved and cannot be used.");
+        throw new ArgumentException("Column name 'Id' is reserved and cannot be used.");
       }
       if (Columns.ContainsKey(GetColumnID(columnName) ?? -1)) {
-        throw new Exception($"Column with name '{columnName}' already exists.");
+        throw new ArgumentException($"Column with name '{columnName}' already exists.");
       }
 
       var column = new ColumnModel() {

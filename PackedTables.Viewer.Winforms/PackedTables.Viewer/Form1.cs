@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using PackedTables;
 using PackedTables.Net;
 using PackedTables.Viewer.Extensions;
@@ -25,6 +24,7 @@ namespace PackedTables.Viewer {
       _settingsPack = new SettingsModel(ConstExt.SettingsFileName);
       ReloadComboBox();
       this.Text = "PackedTables.NET Viewer";
+      DoCloseFileTable();
     }
 
     delegate void SetLogMsgCallback(string msg);
@@ -116,10 +116,14 @@ namespace PackedTables.Viewer {
       label1.Text = "Open:";
       treeView1.Nodes.Clear();
       ClearVrMain();
-      LogMsg(_fileName + " closed.");
+      if (_fileName != "No File Open") {
+        LogMsg(_fileName + " closed.");
+      }
       _column = null;
       _table = null;
       _workingPack = null;
+      toolStripButton1.Enabled = false;
+      toolStripButton2.Enabled = false;
       splitContainer3_Panel1_Resize(null, null);
     }
 
@@ -241,8 +245,8 @@ namespace PackedTables.Viewer {
         var parentNode = target.Parent;
         if (parentNode.Tag is TableModel parentTable) {
           LogMsg($"Parent table: {parentTable.Name}");
-          LoadDataGridViewFromTable(parentTable);
           toolStripButton1.Enabled = true;
+          LoadDataGridViewFromTable(parentTable);
         } else {
           LogMsg("Weird...No parent table found for column selection.");
         }
@@ -295,9 +299,7 @@ namespace PackedTables.Viewer {
       }
     }
 
-    private void ClearVrMain() {
-      toolStripButton1.Enabled = false;
-      toolStripButton2.Enabled = false;
+    private void ClearVrMain() {      
       if (vrMain.Rows.Count > 0) { vrMain.Rows.Clear(); }
       if (vrMain.Columns.Count > 0) { vrMain.Columns.Clear(); }
     }
@@ -305,8 +307,8 @@ namespace PackedTables.Viewer {
     private void LoadDataGridViewFromTable(TableModel table) {
       if (table == null) return;
       _table = table;
-      vrMain.SuspendLayout();
       if (vrMain.Enabled) vrMain.Enabled = false;
+      vrMain.SuspendLayout();
       ClearVrMain();
 
       DataGridViewTextBoxColumn IdColumn = new DataGridViewTextBoxColumn {
@@ -503,7 +505,7 @@ namespace PackedTables.Viewer {
 
     private void removeRowToolStripMenuItem_Click(object sender, EventArgs e) {
       if (_workingPack == null || treeView1.SelectedNode == null || treeView1.SelectedNode.Tag == null) return;
-      // depends on the selected row of the grid not so much the treeview.
+      toolStripButton2_Click(sender, e);
     }
 
     private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -528,11 +530,40 @@ namespace PackedTables.Viewer {
 
     private void vrMain_SelectionChanged(object sender, EventArgs e) {
       var selectedRows = vrMain.SelectedRows;
-      if (selectedRows.Count > 0) { 
-        toolStripButton2.Enabled = false;
-      } else { 
+      if (selectedRows.Count > 0) {
         toolStripButton2.Enabled = true;
+      } else {
+        toolStripButton2.Enabled = false;
       }
+    }
+
+    private void toolStripButton1_Click(object sender, EventArgs e) {
+      if (_workingPack == null || _table == null) return;
+      _table.AddRow();
+      LoadDataGridViewFromTable(_table);
+    }
+
+    private void toolStripButton2_Click(object sender, EventArgs e) {
+      if (_workingPack == null || _table == null || vrMain.SelectedRows.Count == 0) return;
+      var selectedRows = vrMain.SelectedRows;
+      foreach (DataGridViewRow row in selectedRows) {
+        if (row.Index < 0 || row.Index >= vrMain.RowCount) continue; // skip invalid rows
+        var rowNumber = row.Index + 1; // PackedTables are 1-based
+        if (_table.RowIndex.TryGetValue(rowNumber, out int rowId)) {
+          if (_table.Rows.TryGetValue(rowId, out var tableRow)) {
+            _table.RemoveRow(tableRow);
+            vrMain.Rows.RemoveAt(row.Index);
+          }
+        }
+      }
+      LoadDataGridViewFromTable(_table);
+    }
+
+    private void vrMain_CellEnter(object sender, DataGridViewCellEventArgs e) {
+      if ( e.RowIndex < 0 || e.RowIndex >= vrMain.RowCount) return; // prevent out of range
+      if (_table == null) return;
+      toolStripButton1.Enabled = true;
+      toolStripButton2.Enabled = true;
     }
   }
 }

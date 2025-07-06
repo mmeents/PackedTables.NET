@@ -353,6 +353,7 @@
       toolStripButton1.Name = "toolStripButton1";
       toolStripButton1.Size = new Size(23, 20);
       toolStripButton1.Text = "Add Row";
+      toolStripButton1.Click += toolStripButton1_Click;
       // 
       // toolStripButton2
       // 
@@ -362,6 +363,7 @@
       toolStripButton2.Name = "toolStripButton2";
       toolStripButton2.Size = new Size(23, 20);
       toolStripButton2.Text = "Remove Selected Row";
+      toolStripButton2.Click += toolStripButton2_Click;
       // 
       // vrMain
       // 
@@ -375,6 +377,7 @@
       vrMain.Size = new Size(279, 209);
       vrMain.TabIndex = 0;
       vrMain.VirtualMode = true;
+      vrMain.CellEnter += vrMain_CellEnter;
       vrMain.CellValueNeeded += vrMain_CellValueNeeded;
       vrMain.CellValuePushed += vrMain_CellValuePushed;
       vrMain.ColumnHeaderMouseClick += vrMain_ColumnHeaderMouseClick;

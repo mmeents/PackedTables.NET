@@ -20,11 +20,58 @@ Or via the NuGet Package Manager in Visual Studio.
 ## Getting Started
 
 ### Basic Usage
+To get started with PackedTables.NET, you can create a simple table and perform basic operations like adding rows and columns:
+```csharp
+  var packedTables = new PackedTableSet();  -- Create a new PackedTableSet instance
+  
+  packedTables.LoadFromFile("path/to/your/file.pt"); -- maybe load from a previous save
+  var settings = packedTables["Settings"];  -- Retrieve the "Settings" table if it exists
+  if (settings == null) {  -- If the table does not exist, create it
+    settings = packedTables.AddTable("Settings");
+    settings.AddColumn("Key", ColumnType.String);
+    settings.AddColumn("Value", ColumnType.String);
+  }
+
+  var aRow = settings.AddRow();  -- Add a new row to the "Settings" table
+  aRow["Key"].Value = "TestKey1";
+  aRow["Value"].Value = "TestValue1";
+
+  var aRow2 = settings.AddRow(); -- Add another row to the "Settings" table
+  aRow2["Key"].Value = "TestKey2";
+  aRow2["Value"].Value = "TestValue2";
+
+  var retrievedSettings = packedTables["Settings"];  -- Retrieve the "Settings" table again
+
+  Assert.IsNotNull(retrievedSettings, 
+    "Settings table should not be null after saving.");
+  Assert.IsTrue(retrievedSettings.Columns.Count == 2, 
+    "Settings table should have 2 columns after saving Key and Value.");
+  Assert.AreEqual(2, retrievedSettings.Rows.Count, 
+    "Settings table should have 2 rows after saving.");
+
+  string packedData = packedTables.SaveToBase64String();
+
+  var anotherSet = new PackedTableSet();
+  anotherSet.LoadFromBase64String(packedData);
+
+  var settings2 = anotherSet["Settings"];
+  settings2.FindFirst("Key", "TestKey2");
+  Assert.IsTrue(settings2.CurrentRow != null, 
+    "Current row should not be null after finding TestKey2.");
+  Assert.AreEqual("TestValue2", 
+    settings2.Current["Value"].Value, 
+    "Value for TestKey2 should be TestValue2 after finding.");
+
+
+
+```
 
 ### File Persistence
 
 Save and load datasets to/from files:
 
+### Checkout PackedTables.Viewer App
+PackedTables.NET includes a simple viewer application that allows you to visualize and interact with your packed tables. You can find the viewer in the `PackedTables.Viewer` project within the solution. This application provides a user-friendly interface to explore your data, making it easier to understand and manage complex datasets.
 
 ## Contributing
 

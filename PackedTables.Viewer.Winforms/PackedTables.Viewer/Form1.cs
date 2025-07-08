@@ -444,8 +444,7 @@ namespace PackedTables.Viewer {
     private void addTableToolStripMenuItem_Click(object sender, EventArgs e) {
       if (_workingPack == null) return;
       string newTableName = $"Table{_workingPack.TableCount + 1}";
-      var newTable = _workingPack.AddTable(newTableName);
-      newTable.AddColumn("Id", ColumnType.Int32);
+      var newTable = _workingPack.AddTable(newTableName);      
       LoadTreeViewFromWorkingPack();
     }
     private void removeTableToolStripMenuItem_Click(object sender, EventArgs e) {

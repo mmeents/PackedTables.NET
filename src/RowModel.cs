@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PackedTables.Net {
 
-  [MessagePackObject]
+  [MessagePackObject(AllowPrivate = true)]
   public class RowModel {
     [IgnoreMember]
     private TableModel? _owner = null;

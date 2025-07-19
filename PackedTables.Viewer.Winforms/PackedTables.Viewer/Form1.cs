@@ -642,7 +642,7 @@ namespace PackedTables.Viewer {
         e.Cancel = true; // No valid row to edit
         return;
       } else {
-        if (_table.Current == null || Convert.ToInt32(_table.Current["Id"].Value) != rowId) {
+        if (_table.Current == null || _table.Current["Id"].Value.AsInt32() != rowId) {
           _table!.FindFirst("Id", rowId); // Ensure the row is loaded for editing
         }
         if (_table.State == TableState.Browse) {
@@ -656,16 +656,15 @@ namespace PackedTables.Viewer {
     private void vrMain_RowLeave(object sender, DataGridViewCellEventArgs e) {
       if (_workingPack == null || _table == null) return;
       if (e.RowIndex < 0 || e.RowIndex > vrMain.RowCount) return; // Invalid row index
-      if(_table.State == TableState.Browse) return; // No need to cancel if in browse state
+      if (_table.State == TableState.Browse) return; // No need to cancel if in browse state
       
-      if ( !vrMain.IsCurrentRowDirty && !vrMain.IsCurrentCellInEditMode) {
+      if (!vrMain.IsCurrentRowDirty && !vrMain.IsCurrentCellInEditMode) {
         toolStripButton4_Click(sender, e); // Cancel the current edit 
         return;
       }
 
-      if (vrMain.IsCurrentRowDirty
-       && vrMain.IsCurrentCellInEditMode ) {        
-          toolStripButton3_Click(sender, e); 
+      if (vrMain.IsCurrentRowDirty && vrMain.IsCurrentCellInEditMode ) {        
+        toolStripButton3_Click(sender, e); 
       }
     }
   }

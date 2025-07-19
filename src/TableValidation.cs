@@ -126,9 +126,7 @@ namespace PackedTables.Net {
       }
     }
 
-    private static void ValidateNumericRange(ColumnModel column, object value, ValidationResult result) {
-      // You could add MinValue/MaxValue properties to ColumnModel for this
-      // For now, just basic overflow checking
+    private static void ValidateNumericRange(ColumnModel column, object? value, ValidationResult result) {      
       try {
         switch (column.ColumnType) {
           case ColumnType.Int32:

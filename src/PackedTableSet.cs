@@ -122,7 +122,7 @@ namespace PackedTables.Net
 
     public TableModel AddTable(string tableName) {
       var table = GetTableByName(tableName);
-      if (table != null) throw new ArgumentException("Table {tableName} already exists");
+      if (table != null) throw new ArgumentException($"Table {tableName} already exists");
       var tableNew = new TableModel() {
         Id = GetNextTableId(),
         Name = tableName,

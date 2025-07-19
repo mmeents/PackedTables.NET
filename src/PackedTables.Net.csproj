@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://github.com/mmeents/PackedTables.NET</PackageProjectUrl>    
     <PackageTags>MessagePack Tables</PackageTags>    
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.1.5</Version>
+    <Version>1.1.6</Version>
     <Title>PackedTables.NET</Title>
     <Authors>$(AssemblyName)</Authors>
     <Copyright> Copyright © 2025 MattMeents</Copyright>

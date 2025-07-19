@@ -1,4 +1,4 @@
-﻿# Overview of PackedTables.NET
+﻿# Overview of PackedTables.NET 1.1.5
 
 **PackedTables.NET** is a lightweight, in-memory data table framework designed for managing tabular data in a structured, strongly-typed manner. It supports multiple tables within a dataset, with each table containing rows, columns, and fields. The framework leverages the MessagePack serialization library for efficient data serialization and deserialization, making it suitable for applications requiring compact data storage or transmission.
 

@@ -56,6 +56,7 @@ namespace PackedTables.Tests {
       var aRow2 = settings.AddRow();
       aRow2["Key"].Value = "TestKey2";
       aRow2["Value"].Value = "TestValue2";
+      settings.Post();
 
 
       var retrievedSettings = packedTables["Settings"];
@@ -75,7 +76,7 @@ namespace PackedTables.Tests {
       // Arrange
       
       var packedTables = new PackedTableSet();
-      string base64Data = "koEBlgGoU2V0dGluZ3OCAZUBAQEIo0tleQKVAgECCKVWYWx1ZYIBkwEBggGVAQEBqFRlc3RLZXkxCAKVAgECqlRlc3RWYWx1ZTEIApMCAYIBlQECAahUZXN0S2V5MggClQICAqpUZXN0VmFsdWUyCKDDgahTZXR0aW5ncwE="; 
+      string base64Data = "koEBlgGoU2V0dGluZ3OCAZwBAQEIo0tlecLDAKCgoKACnAIBAgilVmFsdWXCwwCgoKCgggGTAQGCAZUBAQGoVGVzdEtleTEIApUCAQKqVGVzdFZhbHVlMQgCkwIBggGVAQIBqFRlc3RLZXkyCAKVAgICqlRlc3RWYWx1ZTIIoMOBqFNldHRpbmdzAQ=="; 
       packedTables.LoadFromBase64String(base64Data);
       // Act
       var settings = packedTables["Settings"];
@@ -93,7 +94,7 @@ namespace PackedTables.Tests {
       // Arrange
 
       var packedTables = new PackedTableSet();
-      string base64Data = "koEBlgGoU2V0dGluZ3OCAZUBAQEIo0tleQKVAgECCKVWYWx1ZYIBkwEBggGVAQEBqFRlc3RLZXkxCAKVAgECqlRlc3RWYWx1ZTEIApMCAYIBlQECAahUZXN0S2V5MggClQICAqpUZXN0VmFsdWUyCKDDgahTZXR0aW5ncwE="; 
+      string base64Data = "koEBlgGoU2V0dGluZ3OCAZwBAQEIo0tlecLDAKCgoKACnAIBAgilVmFsdWXCwwCgoKCgggGTAQGCAZUBAQGoVGVzdEtleTEIApUCAQKqVGVzdFZhbHVlMQgCkwIBggGVAQIBqFRlc3RLZXkyCAKVAgICqlRlc3RWYWx1ZTIIoMOBqFNldHRpbmdzAQ=="; 
       packedTables.LoadFromBase64String(base64Data);
       // Act
       var settings = packedTables["Settings"];
@@ -107,7 +108,7 @@ namespace PackedTables.Tests {
       var newRow = settings.AddRow();
       newRow["Key"].Value = "NewKey";
       newRow["Value"].Value = "NewValue";
-      
+      settings.Post(); // Post the changes to the table
 
       var retrievedSettings = packedTables["Settings"];
       Assert.IsNotNull(retrievedSettings, "Settings table should not be null after saving.");

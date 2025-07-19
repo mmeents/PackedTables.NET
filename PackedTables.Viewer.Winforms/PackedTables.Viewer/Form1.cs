@@ -7,6 +7,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Runtime;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static System.Windows.Forms.AxHost;
 
 
 namespace PackedTables.Viewer {
@@ -124,6 +125,8 @@ namespace PackedTables.Viewer {
       _workingPack = null;
       toolStripButton1.Enabled = false;
       toolStripButton2.Enabled = false;
+      toolStripButton3.Enabled = false;
+      toolStripButton4.Enabled = false;
       splitContainer3_Panel1_Resize(null, null);
     }
 
@@ -299,7 +302,7 @@ namespace PackedTables.Viewer {
       }
     }
 
-    private void ClearVrMain() {      
+    private void ClearVrMain() {
       if (vrMain.Rows.Count > 0) { vrMain.Rows.Clear(); }
       if (vrMain.Columns.Count > 0) { vrMain.Columns.Clear(); }
     }
@@ -348,9 +351,29 @@ namespace PackedTables.Viewer {
       }
       vrMain.RowCount = _table.Rows.Count;
       _table.OrderByColumnName = OrderByColumnName;
+      _table.StateChanged -= CurrentTableStateChanged;
+      _table.StateChanged += CurrentTableStateChanged;
       vrMain.ResumeLayout(false);
       vrMain.Enabled = true;
       if (!vrMain.Visible) { vrMain.Visible = true; }
+    }
+
+    private void CurrentTableStateChanged(object? sender, StateChangedEventArgs e) {
+      SetToolstripButtonsByState(e.NewState);
+    }
+
+    private void SetToolstripButtonsByState(TableState state) {
+      if (state == TableState.Browse) {
+        toolStripButton1.Enabled = true; // Add
+        toolStripButton2.Enabled = true; // Delete
+        toolStripButton3.Enabled = false; // Post/Edit
+        toolStripButton4.Enabled = false; // Cancel        
+      } else {
+        toolStripButton1.Enabled = false; // Add
+        toolStripButton2.Enabled = false; // Delete
+        toolStripButton3.Enabled = true; // Post
+        toolStripButton4.Enabled = true; // Cancel        
+      }
     }
 
     private void vrMain_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
@@ -377,14 +400,30 @@ namespace PackedTables.Viewer {
 
     private void vrMain_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
       try {
+        if (_table == null) return;
+        if (e.RowIndex < 0 || e.ColumnIndex < 0 || e.RowIndex > vrMain.RowCount || e.ColumnIndex >= vrMain.Columns.Count) {
+          LogMsg("Invalid cell index in CellValuePushed.");
+          return;
+        }
         var columnName = vrMain.Columns[e.ColumnIndex].Name;
         var rowNumber = e.RowIndex + 1;  // tables are 1-based in PackedTables
         if (_table != null && _table.RowIndex.TryGetValue(rowNumber, out var tblIndex) && tblIndex != 0) {
-          if (_table.Rows.TryGetValue(tblIndex, out var row)) {
-            if (row != null) {
-              row[columnName].Value = e.Value ?? "";
+          if (_table.Current == null || _table.Current.Id != tblIndex) {
+            LogMsg("error: On cell push not in edit mode.");
+            if (_table.Rows.TryGetValue(tblIndex, out var row)) {
+              if (row != null) {
+                row[columnName].Value = e.Value ?? "";
+              }
+            }
+          } else {
+            // We are in edit mode, so we can safely update the current row so maybe we can cancel or post it later.
+            if (_table.Current != null) {
+              _table.Current[columnName].Value = e.Value ?? "";
+            } else {
+              LogMsg($"Error: Current row or field '{columnName}' not found.");
             }
           }
+
         }
       } catch (Exception ex) {
         LogMsg(ex.Message);
@@ -444,7 +483,7 @@ namespace PackedTables.Viewer {
     private void addTableToolStripMenuItem_Click(object sender, EventArgs e) {
       if (_workingPack == null) return;
       string newTableName = $"Table{_workingPack.TableCount + 1}";
-      var newTable = _workingPack.AddTable(newTableName);      
+      var newTable = _workingPack.AddTable(newTableName);
       LoadTreeViewFromWorkingPack();
     }
     private void removeTableToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -528,41 +567,106 @@ namespace PackedTables.Viewer {
     }
 
     private void vrMain_SelectionChanged(object sender, EventArgs e) {
+      if (_workingPack == null || _table == null) return;
       var selectedRows = vrMain.SelectedRows;
-      if (selectedRows.Count > 0) {
-        toolStripButton2.Enabled = true;
+      if (selectedRows.Count == 0) {
+        SetToolstripButtonsByState(_table.State);
       } else {
-        toolStripButton2.Enabled = false;
+        if (selectedRows.Count == 1) {
+          // Single row selected, enable edit/post          
+          SetToolstripButtonsByState(_table.State);
+        } else {
+          // Multiple rows selected, disable edit/post
+          toolStripButton2.Enabled = true;
+          toolStripButton3.Text = "Delete";
+        }
       }
     }
 
     private void toolStripButton1_Click(object sender, EventArgs e) {
+      // AddRow and make it Current row in tabel update the grid focus.
       if (_workingPack == null || _table == null) return;
       _table.AddRow();
       LoadDataGridViewFromTable(_table);
+      SetToolstripButtonsByState(_table.State);
+      if (vrMain.Rows.Count > 0) {
+        vrMain.CurrentCell = vrMain.Rows[vrMain.RowCount - 1].Cells[0]; // Set focus to the last row
+        vrMain.BeginEdit(true); // Start editing the first cell of the new row
+      }
     }
 
     private void toolStripButton2_Click(object sender, EventArgs e) {
-      if (_workingPack == null || _table == null || vrMain.SelectedRows.Count == 0) return;
-      var selectedRows = vrMain.SelectedRows;
-      foreach (DataGridViewRow row in selectedRows) {
-        if (row.Index < 0 || row.Index >= vrMain.RowCount) continue; // skip invalid rows
-        var rowNumber = row.Index + 1; // PackedTables are 1-based
-        if (_table.RowIndex.TryGetValue(rowNumber, out int rowId)) {
-          if (_table.Rows.TryGetValue(rowId, out var tableRow)) {
-            _table.RemoveRow(tableRow);
-            vrMain.Rows.RemoveAt(row.Index);
+      // Delete for the current row in tabel.
+      if (_workingPack == null || _table == null) return;
+      if (_table.State == TableState.Browse) {
+        var selectedRows = vrMain.SelectedRows;
+        foreach (DataGridViewRow row in selectedRows) {
+          if (row.Index < 0 || row.Index >= vrMain.RowCount) continue; // skip invalid rows
+          var rowNumber = row.Index + 1; // PackedTables are 1-based
+          if (_table.RowIndex.TryGetValue(rowNumber, out int rowId)) {
+            if (_table.Rows.TryGetValue(rowId, out var tableRow)) {
+              _table.RemoveRow(tableRow);
+              vrMain.Rows.RemoveAt(row.Index);
+            }
           }
         }
       }
       LoadDataGridViewFromTable(_table);
+      SetToolstripButtonsByState(_table.State);
+    }
+    private void toolStripButton3_Click(object sender, EventArgs e) {
+      // POST processing for the current row in tabel. 
+      if (_workingPack == null || _table == null) return;
+      if (_table.State != TableState.Browse) {
+        vrMain.EndEdit(); // Ensure any edits are saved
+        if (_table.State != TableState.Browse) {
+          _table.Post(); // Post changes to the table
+        }
+      }
+      SetToolstripButtonsByState(_table.State);
     }
 
-    private void vrMain_CellEnter(object sender, DataGridViewCellEventArgs e) {
-      if ( e.RowIndex < 0 || e.RowIndex >= vrMain.RowCount) return; // prevent out of range
-      if (_table == null) return;
-      toolStripButton1.Enabled = true;
-      toolStripButton2.Enabled = true;
+    private void toolStripButton4_Click(object sender, EventArgs e) {
+      // Cancel processing for the current row in tabel.
+      if (_workingPack == null || _table == null) return;
+      if (_table.State != TableState.Browse) {
+        _table.Cancel();
+        vrMain.CancelEdit();
+      }
+      SetToolstripButtonsByState(_table.State);
+    }
+
+    private void vrMain_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e) {
+      var rowid = e.RowIndex + 1; // PackedTables are 1-based, so adjust the index
+      if (_table == null || !_table.RowIndex.TryGetValue(rowid, out int rowId)) {
+        e.Cancel = true; // No valid row to edit
+        return;
+      } else {
+        if (_table.Current == null || Convert.ToInt32(_table.Current["Id"].Value) != rowId) {
+          _table!.FindFirst("Id", rowId); // Ensure the row is loaded for editing
+        }
+        if (_table.State == TableState.Browse) {
+          _table.Edit(); // Switch to edit mode if not already         
+        }
+        SetToolstripButtonsByState(_table.State);
+        e.Cancel = false; // Allow editing
+      }
+    }
+
+    private void vrMain_RowLeave(object sender, DataGridViewCellEventArgs e) {
+      if (_workingPack == null || _table == null) return;
+      if (e.RowIndex < 0 || e.RowIndex > vrMain.RowCount) return; // Invalid row index
+      if(_table.State == TableState.Browse) return; // No need to cancel if in browse state
+      
+      if ( !vrMain.IsCurrentRowDirty && !vrMain.IsCurrentCellInEditMode) {
+        toolStripButton4_Click(sender, e); // Cancel the current edit 
+        return;
+      }
+
+      if (vrMain.IsCurrentRowDirty
+       && vrMain.IsCurrentCellInEditMode ) {        
+          toolStripButton3_Click(sender, e); 
+      }
     }
   }
 }

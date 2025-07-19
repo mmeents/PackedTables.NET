@@ -53,6 +53,9 @@
       toolStrip1 = new ToolStrip();
       toolStripButton1 = new ToolStripButton();
       toolStripButton2 = new ToolStripButton();
+      toolStripSeparator1 = new ToolStripSeparator();
+      toolStripButton3 = new ToolStripButton();
+      toolStripButton4 = new ToolStripButton();
       vrMain = new DataGridView();
       textBox1 = new TextBox();
       odMain = new OpenFileDialog();
@@ -335,7 +338,7 @@
       // 
       // toolStrip1
       // 
-      toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2 });
+      toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, toolStripButton2, toolStripSeparator1, toolStripButton3, toolStripButton4 });
       toolStrip1.LayoutStyle = ToolStripLayoutStyle.Flow;
       toolStrip1.Location = new Point(0, 0);
       toolStrip1.Margin = new Padding(4, 0, 0, 0);
@@ -365,6 +368,31 @@
       toolStripButton2.Text = "Remove Selected Row";
       toolStripButton2.Click += toolStripButton2_Click;
       // 
+      // toolStripSeparator1
+      // 
+      toolStripSeparator1.Name = "toolStripSeparator1";
+      toolStripSeparator1.Size = new Size(6, 23);
+      // 
+      // toolStripButton3
+      // 
+      toolStripButton3.DisplayStyle = ToolStripItemDisplayStyle.Image;
+      toolStripButton3.Image = (Image)resources.GetObject("toolStripButton3.Image");
+      toolStripButton3.ImageTransparentColor = Color.Magenta;
+      toolStripButton3.Name = "toolStripButton3";
+      toolStripButton3.Size = new Size(23, 20);
+      toolStripButton3.Text = "Post Changes";
+      toolStripButton3.Click += toolStripButton3_Click;
+      // 
+      // toolStripButton4
+      // 
+      toolStripButton4.DisplayStyle = ToolStripItemDisplayStyle.Image;
+      toolStripButton4.Image = (Image)resources.GetObject("toolStripButton4.Image");
+      toolStripButton4.ImageTransparentColor = Color.Magenta;
+      toolStripButton4.Name = "toolStripButton4";
+      toolStripButton4.Size = new Size(23, 20);
+      toolStripButton4.Text = "toolStripButton4";
+      toolStripButton4.Click += toolStripButton4_Click;
+      // 
       // vrMain
       // 
       vrMain.AllowUserToAddRows = false;
@@ -377,10 +405,11 @@
       vrMain.Size = new Size(279, 209);
       vrMain.TabIndex = 0;
       vrMain.VirtualMode = true;
-      vrMain.CellEnter += vrMain_CellEnter;
+      vrMain.CellBeginEdit += vrMain_CellBeginEdit;
       vrMain.CellValueNeeded += vrMain_CellValueNeeded;
       vrMain.CellValuePushed += vrMain_CellValuePushed;
       vrMain.ColumnHeaderMouseClick += vrMain_ColumnHeaderMouseClick;
+      vrMain.RowLeave += vrMain_RowLeave;
       vrMain.SelectionChanged += vrMain_SelectionChanged;
       // 
       // textBox1
@@ -473,5 +502,8 @@
     private ToolStrip toolStrip1;
     private ToolStripButton toolStripButton1;
     private ToolStripButton toolStripButton2;
+    private ToolStripButton toolStripButton3;
+    private ToolStripSeparator toolStripSeparator1;
+    private ToolStripButton toolStripButton4;
   }
 }

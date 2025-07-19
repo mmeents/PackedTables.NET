@@ -1,6 +1,9 @@
-# PackedTables.NET
+# PackedTables.NET 1.1.6
 
 PackedTables.NET is a high-performance, lightweight library for managing and serializing table-based data structures using [MessagePack](https://github.com/neuecc/MessagePack-CSharp). It is designed to handle complex data relationships efficiently while maintaining a compact serialized format, making it ideal for scenarios where performance and data size are critical.
+## Reviews
+- [Grok Review 07062025](https://github.com/mmeents/PackedTables.NET/blob/main/src/GrokReview07062025.md) - Overview of PackedTables.NET 1.1.5
+- [Claude Review 07062025](https://github.com/mmeents/PackedTables.NET/blob/main/src/ClaudeReviewofPTv1.1.5.md) - Overview of PackedTables.NET 1.1.5
 
 ## Features
 

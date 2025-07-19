@@ -25,12 +25,15 @@ namespace PackedTables.Net {
     public ColumnType ValueType { get; set; } = ColumnType.Null;
 
     [IgnoreMember] 
-    private object? _nativeValue;
+    private object? _nativeValue = null;
 
     [IgnoreMember]
     public Object Value {
       get {
-        return _nativeValue ?? this.AsObject();
+        if (_nativeValue == null) {
+          _nativeValue = this.AsObject();
+        }
+        return _nativeValue;
       }
       set {
         if (this.ValueType == FieldExt.GetColumnType(value)) {
@@ -65,7 +68,7 @@ namespace PackedTables.Net {
         case ColumnType.DateTime: ret = field.ValueString.AsDateTime(); break;
         case ColumnType.Boolean: ret = field.ValueString.AsBoolean(); break;
         case ColumnType.Decimal: ret = field.ValueString.AsDecimal(); break;
-        case ColumnType.Bytes: ret = field.ValueString.FromUTF8AsBytes(); break;
+        case ColumnType.Bytes: ret = field.ValueString.FromStringAsBytes(); break;
         case ColumnType.Int64: ret = field.ValueString.AsInt64(); break;
         case ColumnType.Guid: ret = Guid.Parse(field.ValueString); break;
         case ColumnType.Unknown: ret = ""; break;
@@ -89,7 +92,7 @@ namespace PackedTables.Net {
       } else if (value is Decimal valDecimal) {
         return valDecimal.ToString();
       } else if (value is byte[] valBytes) {
-        return valBytes.FromUTF8BytesAsString();
+        return valBytes.FromBytesAsString();
       } else if (value is Guid valGuid) {
         return valGuid.ToString();
       } else {
@@ -114,7 +117,7 @@ namespace PackedTables.Net {
       } else if (value is Decimal valDecimal) {
         field.ValueString = valDecimal.ToString();
       } else if (value is byte[] valBytes) {
-        field.ValueString = valBytes.FromUTF8BytesAsString();
+        field.ValueString = valBytes.FromBytesAsString();
       } else if (value is Guid valGuid) {
         field.ValueString = valGuid.ToString();
       } else {
@@ -144,154 +147,6 @@ namespace PackedTables.Net {
         return ColumnType.Guid;
       }
       return ColumnType.Unknown;
-    }
-
-    public static int AsInt32(this FieldModel field) {
-      return field.ValueString.AsInt32();
-    }
-    public static long AsInt64(this FieldModel field) {
-      return field.ValueString.AsInt64();
-    }
-    public static byte[] AsBytes(this FieldModel field) {
-      return field.ValueString.FromUTF8AsBytes();
-    }
-    public static bool AsBoolean(this FieldModel field) {
-      return field.ValueString.AsBoolean();
-    }
-    public static DateTime AsDateTime(this FieldModel field) {
-      return field.ValueString.AsDateTime();
-    }
-    public static Decimal AsDecimal(this FieldModel field) {
-      return field.ValueString.AsDecimal();
-    }
-
-    public static int AsInt32(this string value) {
-      return int.Parse(value);
-    }
-    public static long AsInt64(this string value) {
-      return long.Parse(value);
-    }
-    public static byte[] AsBase64Bytes(this string value) {
-      return Convert.FromBase64String(value);
-    }
-    public static bool AsBoolean(this string value) {
-      return Convert.ToBoolean(value);
-    }
-    public static DateTime AsDateTime(this string value) {
-      return DateTime.Parse(value);
-    }
-    public static Decimal AsDecimal(this string value) {
-      return Decimal.Parse(value);
-    }
-    public static byte[] FromUTF8AsBytes(this string text) {
-      return Encoding.UTF8.GetBytes(text);
-    }
-    public static string FromUTF8BytesAsString(this byte[] bytes) {
-      return Encoding.UTF8.GetString(bytes);
-    }
-    public static string AsString(this int value) {
-      return value.ToString();
-    }
-
-
-    public static int AsInt32(this Object value) {
-      return Convert.ToInt32(value);
-    }
-    public static long AsInt64(this Object value) {
-      return Convert.ToInt64(value);
-    }
-    public static byte[] AsBytes(this Object value) {
-      return (byte[])value;
-    }
-    public static bool AsBoolean(this Object value) {
-      return Convert.ToBoolean(value);
-    }
-    public static DateTime AsDateTime(this Object value) {
-      return Convert.ToDateTime(value);
-    }
-    public static Decimal AsDecimal(this Object value) {
-      return Convert.ToDecimal(value);
-    }
-    public static string AsString(this Object value) {
-      return value?.ToString() ?? "";
-    }
-
-
-    #region Date to string 
-    /// <summary> Day to string Sortable yyyy-MM-dd</summary>
-    /// <returns> string </returns>
-    public static string AsStrDate(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd}", x);
-    }
-    /// <summary> DateTime to string yyyy-MM-dd hh:mm:ss.FFF tt </summary>
-    /// <returns> string </returns>
-    public static string AsStrDateTime12H(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd hh:mm:ss.FFF tt}", x);
-    }
-    /// <summary> DateTime to string yyyy-MM-dd HH:mm:ss.FFF</summary>
-    /// <returns> string </returns>
-    public static string AsStrDateTime24H(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd HH:mm:ss.FFF}", x);
-    }
-    /// <summary> DateTime to string DateTime h:mm:ss tt</summary>
-    /// <returns> string </returns>
-    public static string AsStrTime(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:h:mm:ss tt}", x);
-    }
-    /// <summary> DateTime to string Day Time MM/dd/yyyy hh:mm</summary>
-    /// <returns> string </returns>
-    public static string AsStrDayHHMM(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:MM/dd/yyyy hh:mm}", x);
-    }
-    /// <summary> DateTime to string Day MM/dd/yyyy</summary>
-    /// <returns> string </returns>
-    public static string AsStrDay(this DateTime x) {
-      return String.Format(CultureInfo.InvariantCulture, "{0:MM/dd/yyyy}", x);
-    }
-
-    #endregion
-
-
-    public static string[] Parse(this string content, string delims) {
-      return content.Split(delims.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-    }
-    public static string ParseFirst(this string content, string delims) {
-      string[] sr = content.Parse(delims);
-      if (sr.Length > 0) {
-        return sr[0];
-      }
-      return "";
-    }
-    public static string ParseLast(this string content, string delims) {
-      string[] sr = content.Parse(delims);
-      if (sr.Length > 0) {
-        return sr[^1];
-      }
-      return "";
-    }
-
-    /// <summary>
-    /// async read file from file system into string
-    /// </summary>
-    /// <param name="filePath"></param>
-    /// <returns></returns>
-    public static async Task<string> ReadAllTextAsync(this string filePath) {
-      using var streamReader = new StreamReader(filePath);
-      return await streamReader.ReadToEndAsync();
-    }
-
-    /// <summary>
-    /// async write content to fileName location on file system. 
-    /// </summary>
-    /// <param name="Content"></param>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public static async Task<int> WriteAllTextAsync(this string Content, string fileName) {
-      using var streamWriter = new StreamWriter(fileName);
-      await streamWriter.WriteAsync(Content);
-      return 1;
-    }
+    }  
   }
-
-
 }

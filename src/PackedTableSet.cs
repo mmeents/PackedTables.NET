@@ -54,7 +54,7 @@ namespace PackedTables.Net
 
     public void LoadFromFile(string fileName) {
       if (File.Exists(fileName)) {
-        _fileName = fileName;
+        this._fileName = fileName;
         _modified = false;
         var encoded = Task.Run(async () => await fileName.ReadAllTextAsync().ConfigureAwait(false)).GetAwaiter().GetResult();
         LoadFromBase64String(encoded);
@@ -64,6 +64,21 @@ namespace PackedTables.Net
     public void SaveToFile(string fileName) {
       var base64 = SaveToBase64String();
       Task.Run(async () => await base64.WriteAllTextAsync(fileName).ConfigureAwait(false)).GetAwaiter().GetResult();
+      _modified = false;
+    }
+
+    public async Task LoadFromFileAsync(string fileName) {
+      if (File.Exists(fileName)) {
+        this._fileName = fileName;
+        _modified = false;
+        var encoded = await File.ReadAllTextAsync(fileName); // Direct async, no Task.Run needed
+        LoadFromBase64String(encoded);
+      }
+    }
+
+    public async Task SaveToFileAsync(string fileName) {
+      var base64 = SaveToBase64String();
+      await File.WriteAllTextAsync(fileName, base64); // Direct async
       _modified = false;
     }
 
@@ -107,7 +122,7 @@ namespace PackedTables.Net
 
     public TableModel AddTable(string tableName) {
       var table = GetTableByName(tableName);
-      if (table != null) throw new Exception("Table {tableName} already exists");
+      if (table != null) throw new ArgumentException("Table {tableName} already exists");
       var tableNew = new TableModel() {
         Id = GetNextTableId(),
         Name = tableName,
@@ -119,7 +134,24 @@ namespace PackedTables.Net
       return tableNew;
     }
 
-    public TableModel? GetTableByName(string tableName) {        
+    public TableModel AddTable(string tableName, params (string name, ColumnType type)[] columns) { 
+        var table = GetTableByName(tableName);
+        if (table != null) throw new ArgumentException($"Table {tableName} already exists");
+        var tableNew = new TableModel() {
+            Id = GetNextTableId(),
+            Name = tableName,
+            Owner = this
+        };
+        foreach (var column in columns) {
+            tableNew.AddColumn(column.name, column.type);
+        }
+        _Package.Tables[tableNew.Id] = tableNew;
+        _Package.NameIndex[tableName] = tableNew.Id;
+        _modified = true;
+        return tableNew;
+    }
+    public TableModel? GetTableByName(string tableName) {
+      if (string.IsNullOrEmpty(tableName)) return null;
       if (_Package.NameIndex.TryGetValue(tableName, out var tableId)) {
         return _Package.Tables[tableId];
       }    
@@ -139,7 +171,7 @@ namespace PackedTables.Net
         _Package.NameIndex.TryRemove(tableName, out _);
         _modified = true;
       } else {
-        throw new Exception($"Table {tableName} does not exist.");
+        throw new ArgumentException($"Table {tableName} does not exist.");
       }
     }
 

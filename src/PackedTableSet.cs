@@ -71,14 +71,14 @@ namespace PackedTables.Net
       if (File.Exists(fileName)) {
         this._fileName = fileName;
         _modified = false;
-        var encoded = await File.ReadAllTextAsync(fileName); // Direct async, no Task.Run needed
+        var encoded = await File.ReadAllTextAsync(fileName).ConfigureAwait(false); // Direct async, no Task.Run needed
         LoadFromBase64String(encoded);
       }
     }
 
     public async Task SaveToFileAsync(string fileName) {
       var base64 = SaveToBase64String();
-      await File.WriteAllTextAsync(fileName, base64); // Direct async
+      await File.WriteAllTextAsync(fileName, base64).ConfigureAwait(false); // Direct async
       _modified = false;
     }
 

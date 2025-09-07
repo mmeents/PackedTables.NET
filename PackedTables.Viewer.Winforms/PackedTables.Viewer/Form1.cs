@@ -45,7 +45,7 @@ namespace PackedTables.Viewer {
       var RecentlyUsedTable = _settingsPack.RecentlyUsed;
       int selectedIndex = -1;
       RecentlyUsedTable.Rows.OrderByDescending(r => r.Value["LastUsed"].Value).ToList().ForEach(row => {
-        if (row.Value["FileName"].Value == _fileName) {
+        if (row.Value["FileName"].ValueString == _fileName) {
           selectedIndex = comboBox1.Items.Add(row.Value["FileName"].Value);
         } else {
           comboBox1.Items.Add(row.Value["FileName"].Value);

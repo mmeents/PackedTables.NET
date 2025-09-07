@@ -13,7 +13,7 @@ namespace PackedTables.Net {
     /// <returns></returns>
     public static async Task<string> ReadAllTextAsync(this string filePath) {
       using var streamReader = new StreamReader(filePath);
-      return await streamReader.ReadToEndAsync();
+      return await streamReader.ReadToEndAsync().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ namespace PackedTables.Net {
     /// <returns></returns>
     public static async Task<int> WriteAllTextAsync(this string Content, string fileName) {
       using var streamWriter = new StreamWriter(fileName);
-      await streamWriter.WriteAsync(Content);
+      await streamWriter.WriteAsync(Content).ConfigureAwait(false);
       return 1;
     }
   }
